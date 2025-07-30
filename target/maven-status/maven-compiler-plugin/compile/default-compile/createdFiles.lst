@@ -1,0 +1,9 @@
+model\bean\OrderItem.class
+controller\CartServlet.class
+model\bean\User.class
+model\bean\CartItem.class
+model\bean\Product.class
+model\bean\Order.class
+model\bean\Category.class
+model\bean\Cart.class
+model\bean\Payment.class
