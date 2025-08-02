@@ -1,6 +1,10 @@
 package model.dao;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,6 +63,20 @@ public class UserDao {
         return null;
     }
 
+    public User getUserByEmail(String email) {
+        String sql = "SELECT * FROM `user` WHERE Email=?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return mapResultSetToUser(rs);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public boolean insertUser(User user) {
         String sql = "INSERT INTO `user` (Id, Name, Email, Password, Phone, Address, Role, CreateAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -105,4 +123,46 @@ public class UserDao {
         }
         return false;
     }
+    
+     // Kiểm tra trùng ID
+    public boolean isIdExists(String id) {
+        String sql = "SELECT 1 FROM user WHERE Id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, id);
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Kiểm tra trùng Email
+    public boolean isEmailExists(String email) {
+        String sql = "SELECT 1 FROM user WHERE Email = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean isLoginValid(String email, String password) {
+    String sql = "SELECT 1 FROM user WHERE Email = ? AND Password = ?";
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setString(1, email);
+        ps.setString(2, password);
+        ResultSet rs = ps.executeQuery();
+        return rs.next(); // Trả về true nếu có kết quả
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return false;
+    }
+}
+
+
+    
 }

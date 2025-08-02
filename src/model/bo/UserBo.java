@@ -1,7 +1,6 @@
 package model.bo;
 
 import java.sql.SQLException;
-//import java.util.ArrayList;
 import java.util.List;
 
 import model.bean.User;
@@ -26,6 +25,10 @@ public class UserBo {
         return dao.getUserById(id);
     }
 
+    public User getUserByEmail(String email){
+        return dao.getUserByEmail(email);
+    }
+
     public boolean insertUser(User u) {
         return dao.insertUser(u);
     }
@@ -36,5 +39,19 @@ public class UserBo {
 
     public boolean deleteUser(String id) {
         return dao.deleteUser(id);
+    }
+    
+        public boolean isIdDuplicate(String id) {
+        return dao.isIdExists(id);
+    }
+
+    // Kiểm tra Email đã tồn tại chưa
+    public boolean isEmailDuplicate(String email) {
+        return dao.isEmailExists(email);
+    }
+
+    public boolean isLoginValid(String email, String password) {
+        // TODO Auto-generated method stub
+        return dao.isLoginValid(email, password);
     }
 }

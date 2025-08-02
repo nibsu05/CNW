@@ -11,6 +11,7 @@ import javax.servlet.http.HttpSession;
 
 import model.bean.Cart;
 import model.bean.Product;
+import model.bo.ProductBo;
 
 @WebServlet("/CartServlet")
 public class CartServlet extends HttpServlet {
@@ -67,10 +68,10 @@ public class CartServlet extends HttpServlet {
             throws ServletException, IOException {
         
         try {
-            int productId = Integer.parseInt(request.getParameter("productId"));
+            String productId = request.getParameter("productId");
             int quantity = Integer.parseInt(request.getParameter("quantity"));
             
-            // Tạo sản phẩm mẫu (trong thực tế sẽ lấy từ database)
+            // Đã lấy product từ db
             Product product = createSampleProduct(productId);
             
             if (product != null) {
@@ -97,7 +98,7 @@ public class CartServlet extends HttpServlet {
             throws ServletException, IOException {
         
         try {
-            int productId = Integer.parseInt(request.getParameter("productId"));
+            String productId = request.getParameter("productId");
             cart.removeItem(productId);
             request.setAttribute("message", "Đã xóa sản phẩm khỏi giỏ hàng!");
         } catch (NumberFormatException e) {
@@ -111,7 +112,7 @@ public class CartServlet extends HttpServlet {
             throws ServletException, IOException {
         
         try {
-            int productId = Integer.parseInt(request.getParameter("productId"));
+            String productId = request.getParameter("productId");
             int quantity = Integer.parseInt(request.getParameter("quantity"));
             
             cart.updateQuantity(productId, quantity);
@@ -139,22 +140,9 @@ public class CartServlet extends HttpServlet {
     }
     
     // Tạo sản phẩm mẫu (trong thực tế sẽ lấy từ database)
-    private Product createSampleProduct(int productId) {
-        switch (productId) {
-            case 1:
-                return new Product(1, "Bó Hoa Hồng Kem Dâu Sinh Nhật Vui Tươi", "Bó Hoa Hồng Kem Dâu", 380000, "Sinh nhật", "", "flower");
-            case 2:
-                return new Product(2, "Bó Hoa Hồng Tặng Sinh Nhật Con Gái Dễ Thương", "Bó Hoa Hồng", 400000, "Sinh nhật", "", "flower");
-            case 3:
-                return new Product(3, "Bó Hoa Hướng Dương Tốt Nghiệp Vươn Cao", "Bó Hoa Hướng Dương", 400000, "Tốt nghiệp", "", "flower");
-            case 4:
-                return new Product(4, "Peachy Blush", "Peachy Blush", 420000, "Sinh nhật", "", "flower");
-            case 5:
-                return new Product(5, "Monster Friends", "Thiệp quái vật", 0, "Động vật", "", "card");
-            case 6:
-                return new Product(6, "YOU'RE MY LOBSTER", "Thiệp tình yêu", 0, "Sinh nhật", "", "card");
-            default:
-                return null;
-        }
+    private Product createSampleProduct(String productId) {
+        ProductBo p = new ProductBo();
+        return p.getProductById(productId);
     }
-} 
+    
+}
