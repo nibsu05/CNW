@@ -1,5 +1,7 @@
 package model.bean;
 
+import java.sql.Date;
+
 public class User 
 {
     private String Id;
@@ -8,14 +10,14 @@ public class User
     private String password;
     private String phone;
     private String address;
-    private String role;
-    private String createAt;
+    private int role;
+    private Date createAt;
 
     public User()
     {
         
     }
-    public User(String Id, String name, String email, String password, String phone, String address, String role, String createAt)
+    public User(String Id, String name, String email, String password, String phone, String address, int role, Date createAt)
     {
         this.Id = Id;
         this.name = name;
@@ -50,11 +52,11 @@ public class User
     {
         return this.address;
     }
-    public String getRole()
+    public int getRole()
     {
         return this.role;
     }
-    public String getCreateAt()
+    public Date getCreateAt()
     {
         return this.createAt;
     }
@@ -82,11 +84,11 @@ public class User
     {
         this.address = address;
     }
-    public void setRole(String role)
+    public void setRole(int role)
     {
         this.role = role;
     }
-    public void setCreateAt(String createAt)
+    public void setCreateAt(Date createAt)
     {
         this.createAt = createAt;
     }

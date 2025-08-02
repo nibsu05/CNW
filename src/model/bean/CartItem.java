@@ -1,5 +1,7 @@
 package model.bean;
 
+import java.math.BigDecimal;
+
 public class CartItem {
     private Product product;
     private int quantity;
@@ -30,8 +32,8 @@ public class CartItem {
     }
     
     // Tính tổng giá của item này
-    public double getTotalPrice() {
-        return product.getPrice() * quantity;
+    public BigDecimal getTotalPrice() {
+        return product.getPrice().multiply(BigDecimal.valueOf(quantity));
     }
     
     // Tăng số lượng

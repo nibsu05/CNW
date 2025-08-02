@@ -1,10 +1,12 @@
 package model.bean;
 
+import java.math.BigDecimal;
+
 public class Product {
-    private int id;
+    private String id;
     private String name;
     private String description;
-    private double price;
+    private BigDecimal price;
     private String category;
     private String imageUrl;
     private String type; // "flower" hoặc "card"
@@ -16,7 +18,7 @@ public class Product {
     }
     
     // Constructor với tham số
-    public Product(int id, String name, String description, double price, String category, String imageUrl, String type) {
+    public Product(String id, String name, String description, BigDecimal price, String category, String imageUrl, String type,int stock) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -24,15 +26,24 @@ public class Product {
         this.category = category;
         this.imageUrl = imageUrl;
         this.type = type;
+        this.stock = stock;
         this.isAvailable = true;
     }
     
-    // Getters và Setters
-    public int getId() {
+    public int getStock() {
+		return stock;
+	}
+
+	public void setStock(int stock) {
+		this.stock = stock;
+	}
+
+	// Getters và Setters
+    public String getId() {
         return id;
     }
     
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
     
@@ -52,11 +63,11 @@ public class Product {
         this.description = description;
     }
     
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
     
-    public void setPrice(double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
     
@@ -105,6 +116,7 @@ public class Product {
                 ", price=" + price +
                 ", category='" + category + '\'' +
                 ", type='" + type + '\'' +
+                ", stock='" + type + '\'' +
                 '}';
     }
 }

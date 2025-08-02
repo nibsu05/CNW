@@ -1,17 +1,19 @@
 package model.bean;
 
+import java.sql.Date;
+
 public class Payment
 {
     private String Id;
     private String orderId;
     private String method;
     private String status;
-    private String paidAt;
+    private Date paidAt;
     public Payment()
     {
 
     }
-    public Payment(String Id, String orderId, String method, String status, String paidAt)
+    public Payment(String Id, String orderId, String method, String status, Date paidAt)
     {
         this.Id = Id;
         this.orderId = orderId;
@@ -35,7 +37,7 @@ public class Payment
     {
         return this.status;
     }
-    public String getPaidAt()
+    public Date getPaidAt()
     {
         return this.paidAt;
     }
@@ -55,7 +57,7 @@ public class Payment
     {
         this.status = status;
     }
-    public void setPaidAt(String paidAt)
+    public void setPaidAt(Date paidAt)
     {
         this.paidAt = paidAt;
     }

@@ -1,5 +1,6 @@
 package model.bean;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,12 +30,12 @@ public class Cart {
     }
     
     // Xóa sản phẩm khỏi giỏ hàng
-    public void removeItem(int productId) {
+    public void removeItem(String productId) {
         items.removeIf(item -> item.getProduct().getId() == productId);
     }
     
     // Cập nhật số lượng sản phẩm
-    public void updateQuantity(int productId, int quantity) {
+    public void updateQuantity(String productId, int quantity) {
         for (CartItem item : items) {
             if (item.getProduct().getId() == productId) {
                 if (quantity <= 0) {
@@ -48,7 +49,7 @@ public class Cart {
     }
     
     // Tăng số lượng sản phẩm
-    public void increaseQuantity(int productId) {
+    public void increaseQuantity(String productId) {
         for (CartItem item : items) {
             if (item.getProduct().getId() == productId) {
                 item.increaseQuantity();
@@ -58,7 +59,7 @@ public class Cart {
     }
     
     // Giảm số lượng sản phẩm
-    public void decreaseQuantity(int productId) {
+    public void decreaseQuantity(String productId) {
         for (CartItem item : items) {
             if (item.getProduct().getId() == productId) {
                 item.decreaseQuantity();
@@ -76,8 +77,10 @@ public class Cart {
     }
     
     // Lấy tổng giá trị giỏ hàng
-    public double getTotalPrice() {
-        return items.stream().mapToDouble(CartItem::getTotalPrice).sum();
+    public BigDecimal getTotalPrice() {
+        return items.stream()
+                    .map(CartItem::getTotalPrice) // trả về BigDecimal
+                    .reduce(BigDecimal.ZERO, BigDecimal::add); // cộng dồn
     }
     
     // Lấy danh sách items
@@ -96,7 +99,7 @@ public class Cart {
     }
     
     // Lấy số lượng của một sản phẩm cụ thể
-    public int getQuantity(int productId) {
+    public int getQuantity(String productId) {
         for (CartItem item : items) {
             if (item.getProduct().getId() == productId) {
                 return item.getQuantity();
@@ -106,7 +109,7 @@ public class Cart {
     }
     
     // Kiểm tra sản phẩm có trong giỏ hàng không
-    public boolean containsProduct(int productId) {
+    public boolean containsProduct(String productId) {
         return items.stream().anyMatch(item -> item.getProduct().getId() == productId);
     }
     

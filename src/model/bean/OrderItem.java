@@ -1,18 +1,20 @@
 package model.bean;
 
+import java.math.BigDecimal;
+
 public class OrderItem
 {
     private String Id;
     private String orderId;
     private String productId;
     private int quantity;
-    private long price;
+    private BigDecimal price;
     private String note;
     public OrderItem()
     {
 
     }
-    public OrderItem(String Id, String orderId, String productId, int quantity, long price, String note)
+    public OrderItem(String Id, String orderId, String productId, int quantity, BigDecimal price, String note)
     {
         this.Id = Id;
         this.orderId = orderId;
@@ -37,7 +39,7 @@ public class OrderItem
     {
         return this.quantity;
     }
-    public long getPrice()
+    public BigDecimal getPrice()
     {
         return this.price;
     }
@@ -61,7 +63,7 @@ public class OrderItem
     {
         this.quantity = quantity;
     }
-    public void setPrice(long price)
+    public void setPrice(BigDecimal price)
     {
         this.price = price;
     }

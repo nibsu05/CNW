@@ -1,19 +1,22 @@
 package model.bean;
 
+import java.math.BigDecimal;
+import java.sql.Date;
+
 public class Order
 {
     private String Id;
     private String userId;
-    private String deliveryTime;
-    private long totalPrice;
+    private Date deliveryTime;
+    private BigDecimal totalPrice;
     private String deliveryAddress;
     private String status;
-    private String createAt;
+    private Date createAt;
     public Order()
     {
 
     }
-    public Order(String Id, String userId, String deliveryTime, long totalPrice, String deliveryAddress, String status, String createAt)
+    public Order(String Id, String userId, Date deliveryTime, BigDecimal totalPrice, String deliveryAddress, String status, Date createAt)
     {
         this.Id = Id;
         this.userId = userId;
@@ -23,60 +26,47 @@ public class Order
         this.status = status;
         this.createAt = createAt;
     }
-    public String getId()
-    {
-        return this.Id;
-    }
-    public String getUserId()
-    {
-        return this.userId;
-    }
-    public String getDeliveryTime()
-    {
-        return this.deliveryTime;
-    }
-    public long getTotalPrice()
-    {
-        return this.totalPrice;
-    }
-    public String getDeliveryAddress()
-    {
-        return this.deliveryAddress;
-    }
-    public String getStatus()
-    {
-        return this.status;
-    }
-    public String getCreateAt()
-    {
-        return this.createAt;
-    }
-    public void setId(String Id)
-    {
-        this.Id = Id;
-    }
-    public void setUserId(String userId)
-    {
-        this.userId = userId;
-    }
-    public void setDeliveryTime(String deliveryTime)
-    {
-        this.deliveryTime = deliveryTime;
-    }
-    public void setTotalPrice(long totalPrice)
-    {
-        this.totalPrice = totalPrice;
-    }
-    public void setDeliveryAddress(String deliveryAddress)
-    {
-        this.deliveryAddress = deliveryAddress;
-    }
-    public void setStatus(String status)
-    {
-        this.status = status;
-    }
-    public void setCreateAt(String createAt)
-    {
-        this.createAt = createAt;
-    }
+	public String getId() {
+		return Id;
+	}
+	public void setId(String id) {
+		Id = id;
+	}
+	public String getUserId() {
+		return userId;
+	}
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+	public Date getDeliveryTime() {
+		return deliveryTime;
+	}
+	public void setDeliveryTime(Date deliveryTime) {
+		this.deliveryTime = deliveryTime;
+	}
+	public BigDecimal getTotalPrice() {
+		return totalPrice;
+	}
+	public void setTotalPrice(BigDecimal totalPrice) {
+		this.totalPrice = totalPrice;
+	}
+	public String getDeliveryAddress() {
+		return deliveryAddress;
+	}
+	public void setDeliveryAddress(String deliveryAddress) {
+		this.deliveryAddress = deliveryAddress;
+	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	public Date getCreateAt() {
+		return createAt;
+	}
+	public void setCreateAt(Date createAt) {
+		this.createAt = createAt;
+	}
+
 }
