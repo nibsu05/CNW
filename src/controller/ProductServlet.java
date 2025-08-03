@@ -67,12 +67,13 @@ public class ProductServlet extends HttpServlet {
         }
     }
 
-    // Hiển thị tất cả sản phẩm
-    private void listAllProducts(HttpServletRequest request, HttpServletResponse response)
+    // Hiển thị tất cả sản phẩm (trả về kiểu dữ liệu là List)
+    private List<Product> listAllProducts(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         List<Product> products = productBo.getAllProducts();
         request.setAttribute("products", products);
         request.getRequestDispatcher("product_list.jsp").forward(request, response);
+        return products;
     }
 
     // Hiển thị sản phẩm theo danh mục
