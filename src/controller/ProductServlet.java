@@ -99,7 +99,7 @@ public class ProductServlet extends HttpServlet {
     }
 
     // Hiển thị tất cả sản phẩm (trả về kiểu dữ liệu là List)
-    private List<Product> listAllProducts(HttpServletRequest request, HttpServletResponse response)
+    private void listAllProducts(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         List<Product> products = productBo.getAllProducts();
 

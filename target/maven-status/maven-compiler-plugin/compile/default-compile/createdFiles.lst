@@ -25,7 +25,6 @@ model\bean\Payment.class
 model\bo\UserBo.class
 controller\LogoutServlet.class
 controller\FinancialReportServlet.class
-test.class
 model\bo\OrderItemBo.class
 model\bean\Order.class
 model\bo\OrderBo.class

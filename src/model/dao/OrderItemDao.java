@@ -58,12 +58,7 @@ public class OrderItemDao {
 
     public List<OrderItem> getByOrderId(String orderId) {
         List<OrderItem> list = new ArrayList<>();
-        String sql = """
-                SELECT oi.*, p.Name AS ProductName
-                FROM orderitem oi
-                JOIN product p ON oi.ProductId = p.Id
-                WHERE oi.OrderId = ?
-            """;
+        String sql = "SELECT oi.*, p.Name AS ProductName FROM orderitem oi JOIN product p ON oi.ProductId = p.Id WHERE oi.OrderId = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, orderId);
             ResultSet rs = ps.executeQuery();

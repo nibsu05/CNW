@@ -176,14 +176,19 @@ public class userServlet extends HttpServlet {
         boolean isAvailable = Boolean.parseBoolean(request.getParameter("isAvailable"));
         // Thêm các trường khác nếu có
 
-        Product product = new Product(id, name, description, price, category, imageUrl,type, stock);
-        ProductBo productBo = new ProductBo();
-        boolean success = productBo.insertProduct(product);
+        try {
+            Product product = new Product(id, name, description, price, category, imageUrl, type, stock);
+            ProductBo productBo = new ProductBo();
+            boolean success = productBo.insertProduct(product);
 
-        if (success) {
-            request.setAttribute("message", "Thêm sản phẩm thành công!");
-        } else {
-            request.setAttribute("error", "Thêm sản phẩm thất bại!");
+            if (success) {
+                request.setAttribute("message", "Thêm sản phẩm thành công!");
+            } else {
+                request.setAttribute("error", "Thêm sản phẩm thất bại!");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Lỗi khi thêm sản phẩm: " + e.getMessage());
         }
         request.getRequestDispatcher("admin_product.jsp").forward(request, response);
     }
@@ -202,14 +207,19 @@ public class userServlet extends HttpServlet {
         boolean isAvailable = Boolean.parseBoolean(request.getParameter("isAvailable"));
         // Thêm các trường khác nếu có
 
-        Product product = new Product(id, name, description, price, category, imageUrl,type, stock);
-        ProductBo productBo = new ProductBo();
-        boolean success = productBo.updateProduct(product);
+        try {
+            Product product = new Product(id, name, description, price, category, imageUrl, type, stock);
+            ProductBo productBo = new ProductBo();
+            boolean success = productBo.updateProduct(product);
 
-        if (success) {
-            request.setAttribute("message", "Cập nhật sản phẩm thành công!");
-        } else {
-            request.setAttribute("error", "Cập nhật sản phẩm thất bại!");
+            if (success) {
+                request.setAttribute("message", "Cập nhật sản phẩm thành công!");
+            } else {
+                request.setAttribute("error", "Cập nhật sản phẩm thất bại!");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Lỗi khi cập nhật sản phẩm: " + e.getMessage());
         }
         request.getRequestDispatcher("admin_product.jsp").forward(request, response);
     }
@@ -217,14 +227,19 @@ public class userServlet extends HttpServlet {
     // Xoá sản phẩm
     private void deleteProduct(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
-        String id = request.getParameter("id");
-        ProductBo productBo = new ProductBo();
-        boolean success = productBo.deleteProduct(id);
+        try {
+            String id = request.getParameter("id");
+            ProductBo productBo = new ProductBo();
+            boolean success = productBo.deleteProduct(id);
 
-        if (success) {
-            request.setAttribute("message", "Xóa sản phẩm thành công!");
-        } else {
-            request.setAttribute("error", "Xóa sản phẩm thất bại!");
+            if (success) {
+                request.setAttribute("message", "Xóa sản phẩm thành công!");
+            } else {
+                request.setAttribute("error", "Xóa sản phẩm thất bại!");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Lỗi khi xóa sản phẩm: " + e.getMessage());
         }
         request.getRequestDispatcher("admin_product.jsp").forward(request, response);
     }
@@ -358,9 +373,14 @@ public class userServlet extends HttpServlet {
     // Xem danh sách sản phẩm
     protected void viewProductList(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        ProductBo productBo = new ProductBo();
-        List<Product> productList = productBo.getAllProducts();
-        request.setAttribute("productList", productList);
+        try {
+            ProductBo productBo = new ProductBo();
+            List<Product> productList = productBo.getAllProducts();
+            request.setAttribute("productList", productList);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Lỗi khi tải danh sách sản phẩm: " + e.getMessage());
+        }
         request.getRequestDispatcher("product_list.jsp").forward(request, response);
     }
 
@@ -370,21 +390,31 @@ public class userServlet extends HttpServlet {
         String productId = request.getParameter("productId");
         int quantity = Integer.parseInt(request.getParameter("quantity"));
 
-        ProductBo productBo = new ProductBo();
-        Product product = productBo.getProductById(productId);
+        try {
+            ProductBo productBo = new ProductBo();
+            Product product = productBo.getProductById(productId);
+            if (product == null) {
+                request.setAttribute("error", "Không tìm thấy sản phẩm!");
+                response.sendRedirect("product_list.jsp");
+                return;
+            }
 
-        HttpSession session = request.getSession();
-        Cart cart = (Cart) session.getAttribute("cart");
-        if (cart == null) {
-            cart = new Cart();
-            session.setAttribute("cart", cart);
-        }
+            HttpSession session = request.getSession();
+            Cart cart = (Cart) session.getAttribute("cart");
+            if (cart == null) {
+                cart = new Cart();
+                session.setAttribute("cart", cart);
+            }
 
-        if (product != null && quantity > 0) {
-            cart.addItem(product, quantity);
-            request.setAttribute("message", "Đã thêm vào giỏ hàng!");
-        } else {
-            request.setAttribute("error", "Sản phẩm không hợp lệ hoặc số lượng không hợp lệ!");
+            if (quantity > 0) {
+                cart.addItem(product, quantity);
+                request.setAttribute("message", "Đã thêm vào giỏ hàng!");
+            } else {
+                request.setAttribute("error", "Số lượng không hợp lệ!");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Lỗi khi thêm vào giỏ hàng: " + e.getMessage());
         }
         response.sendRedirect("userServlet?action=viewCart");
     }

@@ -93,12 +93,10 @@ public class FinancialReportDao {
 
     // 5. Tổng tiền đã thanh toán
     public BigDecimal getTotalPaid() {
-        String sql = """
-            SELECT SUM(o.TotalPrice) AS TongThanhToan
-            FROM payment p
-            JOIN orders o ON p.OrderId = o.Id
-            WHERE p.Status = 'paid' AND o.Status = 'completed'
-        """;
+        String sql = "SELECT SUM(o.TotalPrice) AS TongThanhToan " +
+                   "FROM payment p " +
+                   "JOIN orders o ON p.OrderId = o.Id " +
+                   "WHERE p.Status = 'paid' AND o.Status = 'completed'";
         try (PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {

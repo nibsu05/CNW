@@ -202,7 +202,7 @@ public class OrderServlet extends HttpServlet {
                 deliveryTime, 
                 totalPrice, 
                 deliveryAddress, 
-                "PENDING", 
+                "completed", 
                 createAt
             );
             
@@ -235,7 +235,7 @@ public class OrderServlet extends HttpServlet {
                             paymentId,
                             orderId,
                             paymentMethod,
-                            "PAID"
+                            "paid"
                         );
                         System.out.println("Payment processing result: " + paymentSuccess);
                         
