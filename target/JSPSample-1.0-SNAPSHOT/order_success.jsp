@@ -99,13 +99,25 @@
         </p>
         
         <div class="action-buttons">
-            <a href="homepage.jsp" class="btn">
+            <button onclick="closeAndRedirect()" class="btn">
                 <i class="fas fa-home"></i> Về Trang Chủ
-            </a>
-            <a href="order_tracking.jsp" class="btn" style="margin-left: 10px;">
-                <i class="fas fa-truck"></i> Theo Dõi Đơn Hàng
-            </a>
+            </button>
         </div>
+        
+        <script>
+            function closeAndRedirect() {
+                // Check if this is in a popup window
+                if (window.opener) {
+                    // Close the popup
+                    window.close();
+                    // Redirect the parent window to homepage
+                    window.opener.location.href = 'homepage.jsp';
+                } else {
+                    // If not in a popup, just redirect
+                    window.location.href = 'homepage.jsp';
+                }
+            }
+        </script>
     </div>
 </body>
 </html>

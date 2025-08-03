@@ -555,9 +555,9 @@
                     if (email != null && !email.isEmpty()) { 
                         // Đã đăng nhập
                 %>
-                <button class="btn btn-primary" onclick="checkout()">
+                <a href="checkout.jsp" class="btn btn-primary">
                     <i class="fas fa-check"></i> Xác nhận đặt hàng
-                </button>
+                </a>
                 <% } else { 
                         // Chưa đăng nhập
                         String currentPage = request.getRequestURI();
@@ -577,8 +577,7 @@
     <script>
         // Hàm kiểm tra đăng nhập trước khi thanh toán
         function checkout() {
-            // Nếu đã kiểm tra ở server-side thì không cần kiểm tra lại ở đây
-            // Nhưng vẫn giữ lại để xử lý trường hợp bất đồng bộ
+            // Chuyển hướng trực tiếp đến trang thanh toán
             window.location.href = 'checkout.jsp';
         }
         
