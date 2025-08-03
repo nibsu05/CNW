@@ -414,20 +414,14 @@
                 </ul>
             </div>
 
+            <%@ page import="model.bo.ProductBo"%>
             <!-- Products Grid -->
             <div class="products-container">
                 <div class="products-grid">
                     <%
+                    ProductBo bo = new ProductBo();
                         // Tạo danh sách sản phẩm mẫu
-                        List<Product> products = new ArrayList<>();
-                        
-                        // Thêm các sản phẩm thiệp
-                        products.add(new Product(1, "Bó Hoa Hồng Kem Dâu Sinh Nhật Vui Tươi", "Bó Hoa Hồng Kem Dâu", 380000, "Sinh nhật", "https://vuonhoatuoi.vn/wp-content/uploads/2021/10/Hoa-Bo-Gia-Re-Hong-Trang-Garden-2-640x800.webp", "flower"));
-                        products.add(new Product(2, "Bó Hoa Hồng Tặng Sinh Nhật Con Gái Dễ Thương", "Bó Hoa Hồng", 400000, "Sinh nhật", "https://vuonhoatuoi.vn/wp-content/uploads/2024/03/bo-hoa-hong-tang-sinh-nhat-con-gai.webp", "flower"));
-                        products.add(new Product(3, "Bó Hoa Hướng Dương Tốt Nghiệp Vươn Cao", "Bó Hoa Hướng Dương Tốt Nghiệp Vươn Cao", 400000, "Tốt nghiệp", "https://vuonhoatuoi.vn/wp-content/uploads/2023/12/Hoa-Tot-Nghiep-Huong-Duong-Sunny-Days-1-640x800.webp", "flower"));
-                        products.add(new Product(4, "Peachy Blush", "Peachy Blush", 420000, "Sinh nhật", "https://vuonhoatuoi.vn/wp-content/uploads/2025/04/Bo-Hoa-Tuoi-1-280x280.webp", "flower"));
-                        products.add(new Product(5, "Mẫu hoa 1", "desc mẫu hoa 1", 350000, "Hoa", "", "flower"));
-                        products.add(new Product(6, "Mẫu hoa 2", "desc mẫu hoa 2", 250000, "Hoa", "", "flower"));
+                        List<Product> products = bo.getProductsByTypeSplit("flower");
                         
                         // Hiển thị sản phẩm
                         for(Product product : products) {

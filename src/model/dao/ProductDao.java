@@ -24,19 +24,6 @@ public class ProductDao {
 		conn = DriverManager.getConnection(url, "root", "");
 	
 	}
-	private Product mapResultSetToProduct(ResultSet rs) throws SQLException {
-	    Product p = new Product();
-	    p.setId(rs.getString("Id"));
-	    p.setName(rs.getString("Name"));
-	    p.setDescription(rs.getString("Description"));
-	    p.setPrice(rs.getBigDecimal("Price")); 
-	    p.setCategory(rs.getString("Category"));
-	    p.setImageUrl(rs.getString("ImageUrl"));
-	    p.setType(rs.getString("Type"));
-	    p.setStock(rs.getInt("Stock"));
-	    p.setAvailable(rs.getBoolean("IsAvailable"));
-	    return p;
-	}
 	//Lấy toàn bộ sản phẩm
 	public List<Product> getAllProducts() {
         List<Product> products = new ArrayList<>();
@@ -233,6 +220,54 @@ public class ProductDao {
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
+        }
+    }
+    public List<Product> getProductsByTypeSplit(String type) {
+        List<Product> productFlower = new ArrayList<>();
+        List<Product> productCard = new ArrayList<>();
+        String sql = "SELECT * FROM Product";
+        try (PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                Product p = mapResultSetToProduct(rs);
+                if ("flower".equalsIgnoreCase(p.getType())) {
+                    productFlower.add(p);
+                } else if ("card".equalsIgnoreCase(p.getType())) {
+                    productCard.add(p);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        if ("flower".equalsIgnoreCase(type)) {
+            return productFlower;
+        } else if ("card".equalsIgnoreCase(type)) {
+            return productCard;
+        } else {
+            // Nếu type khác, trả về tất cả sản phẩm
+            List<Product> all = new ArrayList<>();
+            all.addAll(productFlower);
+            all.addAll(productCard);
+            return all;
+        }
+    }
+
+        private Product mapResultSetToProduct(ResultSet rs) {
+            try {
+            Product p = new Product();
+            p.setId(rs.getString("Id"));
+            p.setName(rs.getString("Name"));
+            p.setDescription(rs.getString("Description"));
+            p.setPrice(rs.getBigDecimal("Price"));
+            p.setCategory(rs.getString("Category"));
+            p.setImageUrl(rs.getString("ImageUrl"));
+            p.setType(rs.getString("Type"));
+            p.setStock(rs.getInt("Stock"));
+            p.setAvailable(rs.getBoolean("IsAvailable"));
+            return p;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }

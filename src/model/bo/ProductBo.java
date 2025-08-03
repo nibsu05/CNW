@@ -1,11 +1,11 @@
 package model.bo;
 
-import model.bean.Product;
-import model.dao.ProductDao;
-
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.List;
+
+import model.bean.Product;
+import model.dao.ProductDao;
 
 public class ProductBo {
     private ProductDao productDao;
@@ -48,5 +48,9 @@ public class ProductBo {
 // xóa sản phẩm
     public boolean deleteProduct(String id) {
         return productDao.deleteProduct(id);
+    }
+//Phân loại sản phẩm theo loại
+    public List<Product> getProductsByTypeSplit(String type){
+        return productDao.getProductsByTypeSplit(type);
     }
 }
