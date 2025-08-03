@@ -80,7 +80,8 @@ public class ProductServlet extends HttpServlet {
     private void listProductsByCategory(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String category = request.getParameter("category");
-        List<Product> products = productBo.getProductsByCategory(category);
+        String type = request.getParameter("type");
+        List<Product> products = productBo.getProductsByCategory(category,type);
         request.setAttribute("products", products);
         request.getRequestDispatcher("product_list.jsp").forward(request, response);
     }

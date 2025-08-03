@@ -26,8 +26,8 @@ public class ProductBo {
         return productDao.getProductById(id);
     }
 // lấy sản phẩm theo danh mục
-    public List<Product> getProductsByCategory(String category) {
-        return productDao.getProductsByCategory(category);
+    public List<Product> getProductsByCategory(String category, String id) {
+        return productDao.getProductsByCategory(category, id);
     }
 // lấy sản phẩm khả dụng 
     public List<Product> getAvailableProducts() {

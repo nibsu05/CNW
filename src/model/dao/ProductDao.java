@@ -127,9 +127,10 @@ public class ProductDao {
         return null;
     }
 //    Lấy sản phẩm theo danh mục
-    public List<Product> getProductsByCategory(String category) {
+    public List<Product> getProductsByCategory(String category, String type) {
         List<Product> products = new ArrayList<>();
-        String sql = "SELECT * FROM Product WHERE Category = ?";
+        if(type == "flower"){
+            String sql = "SELECT * FROM Product WHERE Category = ? AND Type = 'flower'";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, category);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -149,6 +150,30 @@ public class ProductDao {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+        }
+        if(type == "card"){
+            String sql = "SELECT * FROM Product WHERE Category = ? AND Type = 'card'";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, category);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Product p = new Product();
+                    p.setId(rs.getString("Id"));
+                    p.setName(rs.getString("Name"));
+                    p.setDescription(rs.getString("Description"));
+                    p.setPrice(rs.getBigDecimal("Price"));
+                    p.setCategory(rs.getString("Category"));
+                    p.setImageUrl(rs.getString("ImageUrl"));
+                    p.setType(rs.getString("Type"));
+                    p.setStock(rs.getInt("Stock"));
+                    p.setAvailable(rs.getBoolean("IsAvailable"));
+                    products.add(p);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         }
         return products;
     }
