@@ -16,8 +16,9 @@
     <div class="container">
         <h1>Bảng điều khiển quản trị</h1>
         <ul>
-            <li><a href="admin_revenue.jsp"><i class="fas fa-chart-line"></i> Thống kê doanh thu</a></li>
-            <li><a href="admin_manage.jsp"><i class="fas fa-database"></i> Quản lý CRUD</a></li>
+            <li><a href="${pageContext.request.contextPath}/FinancialReport"><i class="fas fa-chart-line"></i> Thống kê doanh thu</a></li>
+            <li><a href="ProductServlet?action=list"><i class="fas fa-database"></i> Quản lý CRUD</a></li>
+            <li><a href="Order"><i class="fas fa-database"></i> Đơn hàng</a></li>
             <li><a href="homepage.jsp"><i class="fas fa-home"></i> Về trang chủ</a></li>
         </ul>
     </div>
