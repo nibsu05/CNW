@@ -1,5 +1,6 @@
 package model.bean;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 
 public class Payment
@@ -20,6 +21,10 @@ public class Payment
         this.method = method;
         this.status = status;
         this.paidAt = paidAt;
+    }
+
+    public Payment(String paymentId, String orderId, BigDecimal amount, String method, String status, Date date) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
     public String getId()
     {

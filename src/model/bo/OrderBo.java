@@ -116,7 +116,7 @@ public class OrderBo {
             );
             
             PaymentDao paymentDao = new PaymentDao();
-            return paymentDao.insertPayment(payment);
+            return paymentDao.insert(payment);
         } catch (Exception e) {
             e.printStackTrace();
             return false;
