@@ -536,19 +536,24 @@
     </section>
 
     <!-- Products Section -->
+    <%@ page import="model.bo.ProductBo" %>
+    <%@ page import="java.util.List" %>
     <%
-    List<Product> products = (List<Product>) application.getAttribute("products");
-%>
-<section id="products" class="products">
+    // Lấy 3 sản phẩm đầu tiên từ database
+    ProductBo productBo = new ProductBo();
+    List<Product> products = productBo.getAllProducts();
+    
+    // Giới hạn chỉ lấy tối đa 3 sản phẩm
+    int displayCount = Math.min(products.size(), 3);
+    %>
+    <section id="products" class="products">
         <div class="container">
-              <h2 class="section-title">Sản phẩm nổi bật</h2>
+            <h2 class="section-title">Sản phẩm nổi bật</h2>
             <div class="products-grid">
-                
                 <%  
                     if (products != null && !products.isEmpty()) {  
-                        int count = 0;  
-                        for (Product product : products) {  
-                            if (count >= 3) break;  
+                        for (int i = 0; i < displayCount; i++) {
+                            Product product = products.get(i);
                 %>  
             <div class="product-card">  
                 <div class="product-image">  
@@ -557,18 +562,17 @@
                 <div class="product-content">  
                     <h3><%= product.getName() %></h3>  
                     <p><%= product.getDescription() %></p>  
-                    <div class="product-price"><%= product.getPrice() %> VNĐ</div>  
+                    <div class="product-price"><%= String.format("%,d", product.getPrice().intValue()) %> VNĐ</div>  
                     <a href="addToCart?productId=<%= product.getId() %>" class="btn btn-primary">Thêm vào giỏ</a>  
                 </div>  
             </div>  
 <%  
-            count++;  
-        }  
-    } else {  
+                        }  
+                    } else {  
 %>  
         <p>Hiện chưa có sản phẩm nào.</p>  
 <%  
-    }  
+                    }  
 %>  
 
             </div>
