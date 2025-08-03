@@ -467,21 +467,20 @@
                 </a>
             </div>
             <%
-    String username = "admin";
-    String role = "admin";
-    //String username = (String) session.getAttribute("username");
-    //String role = (String) session.getAttribute("role");
+    String email = (String) session.getAttribute("email");
+    Object roleObj = session.getAttribute("role");
+    int role = (roleObj != null) ? (int) roleObj : 0; // Default to 0 (regular user) if not logged in
 %>
 <ul class="nav-links">
-                <% if(username!=null && "admin".equals(role)){ %>
+                <% if(email != null && role == 1){ %>
                 <li><a href="admin_dashboard.jsp"><i class="fas fa-cogs"></i> Quản lý</a></li>
             <% } %>
             <li><a href="ecards.jsp"><i class="fas fa-envelope"></i> Thiệp</a></li>
                 <li><a href="flowers.jsp"><i class="fas fa-seedling"></i> Hoa</a></li>
-                <% if(username==null){ %>
+                <% if(email == null){ %>
                 <li><a href="login.jsp"><i class="fas fa-sign-in-alt"></i> Đăng nhập</a></li>
             <% }else{ %>
-                <li><a href="LogoutServlet"><i class="fas fa-sign-out-alt"></i> Đăng xuất (<%= username %>)</a></li>
+                <li><a href="LogoutServlet"><i class="fas fa-sign-out-alt"></i> Đăng xuất (<%= email %>)</a></li>
             <% } %>
                 <li><a href="cart.jsp"><i class="fas fa-shopping-cart"></i> Giỏ hàng</a></li>
             </ul>
@@ -539,46 +538,39 @@
     <!-- Products Section -->
     <%
     List<Product> products = (List<Product>) application.getAttribute("products");
-    if(products == null){
-        products = new ArrayList<>();
-        products.add(new Product(1, "Bó Hoa Hồng Kem Dâu Sinh Nhật Vui Tươi", "Bó Hoa Hồng Kem Dâu", 380000, "Sinh nhật", "https://vuonhoatuoi.vn/wp-content/uploads/2021/10/Hoa-Bo-Gia-Re-Hong-Trang-Garden-2-640x800.webp", "flower"));
-        products.add(new Product(2, "Bó Hoa Hồng Tặng Sinh Nhật Con Gái Dễ Thương", "Bó Hoa Hồng", 400000, "Sinh nhật", "https://vuonhoatuoi.vn/wp-content/uploads/2024/03/bo-hoa-hong-tang-sinh-nhat-con-gai.webp", "flower"));
-        products.add(new Product(3, "Gill The Cat - Thiệp sinh nhật mèo con", "Desgign by Kim Vervuurt (Threadless)", 0, "Sinh nhật", "https://www.openme.com/sites/default/files/styles/card_listing_preview/public/card_listing_thumbs/Catalog-gilblue.jpg?itok=Z5RJ0xiX", "card"));
-        application.setAttribute("products", products);
-    }
 %>
 <section id="products" class="products">
         <div class="container">
               <h2 class="section-title">Sản phẩm nổi bật</h2>
             <div class="products-grid">
-                <%-- Lặp qua 3 sản phẩm đầu --%>
-                <% for(int i=0;i<3 && i<products.size();i++){ Product p = products.get(i); %>
-                <div class="product-card">
-                    <div class="product-image">
-                        <% if(p.getImageUrl()!=null && !p.getImageUrl().isEmpty()){ %>
-                            <img src="<%= p.getImageUrl() %>" alt="<%= p.getName() %>" style="width:100%;height:100%;object-fit:cover;">
-                        <% } else { %>
-                            <% if("flower".equals(p.getType())){ %>
-                                <i class="fas fa-rose"></i>
-                            <% } else { %>
-                                <i class="fas fa-envelope-open-text"></i>
-                            <% } %>
-                        <% } %>
-                    </div>
-                    <div class="product-content">
-                        <center>
-                        <h3><%= p.getName() %></h3>
-                        <p><%= p.getDescription() %></p>
-                        <div class="product-price"><%= p.getPrice()==0?"Miễn phí":String.format("%,.0f₫", p.getPrice()) %></div>
-                        </center>
-                        <center>
-                            <a href="product_detail.jsp?id=<%= p.getId() %>" class="btn btn-primary">
-                                <i class="fas fa-eye"></i> Xem chi tiết
-                            </a>
-                        </center>
-                    </div>
-                </div>
-                <% } %>
+                
+                <%  
+                    if (products != null && !products.isEmpty()) {  
+                        int count = 0;  
+                        for (Product product : products) {  
+                            if (count >= 3) break;  
+                %>  
+            <div class="product-card">  
+                <div class="product-image">  
+                    <img src="<%= product.getImageUrl() %>" alt="<%= product.getName() %>" style="width:100%; height:100%; object-fit:cover;">  
+                </div>  
+                <div class="product-content">  
+                    <h3><%= product.getName() %></h3>  
+                    <p><%= product.getDescription() %></p>  
+                    <div class="product-price"><%= product.getPrice() %> VNĐ</div>  
+                    <a href="addToCart?productId=<%= product.getId() %>" class="btn btn-primary">Thêm vào giỏ</a>  
+                </div>  
+            </div>  
+<%  
+            count++;  
+        }  
+    } else {  
+%>  
+        <p>Hiện chưa có sản phẩm nào.</p>  
+<%  
+    }  
+%>  
+
             </div>
         </div>
     </section>

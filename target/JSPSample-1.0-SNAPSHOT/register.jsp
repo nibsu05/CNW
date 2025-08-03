@@ -1,9 +1,16 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<% 
+    // Set response content type and encoding
+    response.setContentType("text/html; charset=UTF-8");
+    response.setCharacterEncoding("UTF-8");
+    request.setCharacterEncoding("UTF-8");
+%>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
-    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Language" content="vi">
     <title>Đăng ký - Thiệp và Hoa</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -399,7 +406,16 @@
             <h1 class="register-title">Đăng ký</h1>
         </div>
 
-        <form action="RegisterServlet" method="post">
+        <%-- Display error message if any --%>
+        <% String error = (String) request.getAttribute("error"); 
+           if (error != null) { %>
+            <div class="error-message" style="color: red; margin-bottom: 1rem; text-align: center;">
+                <%= error %>
+            </div>
+        <% } %>
+        
+        <form action="userServlet" method="post" accept-charset="UTF-8" enctype="application/x-www-form-urlencoded;charset=UTF-8">
+            <input type="hidden" name="action" value="register">
             <div class="form-row">
                 <div class="form-group">
                     <label for="firstName">Họ</label>
@@ -435,10 +451,10 @@
             </div>
 
             <div class="form-group full-width">
-                <label for="username">Tên đăng nhập</label>
+                <label for="address">Địa chỉ</label>
                 <div class="input-wrapper">
-                    <i class="fas fa-user-circle input-icon"></i>
-                    <input type="text" id="username" name="username" placeholder="Tạo tên đăng nhập" required>
+                    <i class="fas fa-map-marker-alt input-icon"></i>
+                    <input type="text" id="address" name="address" placeholder="Nhập địa chỉ" required>
                 </div>
             </div>
 
@@ -489,39 +505,86 @@
             });
         });
 
-        // Password toggle functionality
+        // Toggle password visibility
         function togglePassword(inputId) {
             const input = document.getElementById(inputId);
-            const toggle = input.nextElementSibling;
+            const icon = input.nextElementSibling;
             
             if (input.type === 'password') {
                 input.type = 'text';
-                toggle.classList.remove('fa-eye');
-                toggle.classList.add('fa-eye-slash');
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
             } else {
                 input.type = 'password';
-                toggle.classList.remove('fa-eye-slash');
-                toggle.classList.add('fa-eye');
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
             }
         }
 
-        // Form submission animation
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const btn = document.querySelector('.register-btn');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang đăng ký...';
-            btn.style.opacity = '0.8';
+        // Form validation
+        document.querySelector('form').addEventListener('submit', function(event) {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const terms = document.getElementById('terms').checked;
+            
+            // Check if passwords match
+            if (password !== confirmPassword) {
+                event.preventDefault();
+                alert('Mật khẩu xác nhận không khớp!');
+                return false;
+            }
+            
+            // Check password strength (at least 8 characters, 1 number, 1 letter)
+            const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+            if (!passwordRegex.test(password)) {
+                event.preventDefault();
+                alert('Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ và số');
+                return false;
+            }
+            
+            // Check email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                event.preventDefault();
+                alert('Vui lòng nhập địa chỉ email hợp lệ');
+                return false;
+            }
+            
+            // Check phone number format (10-11 digits)
+            const phoneRegex = /^\d{10,11}$/;
+            if (!phoneRegex.test(phone)) {
+                event.preventDefault();
+                alert('Số điện thoại phải có 10-11 chữ số');
+                return false;
+            }
+            
+            // Check if terms are accepted
+            if (!terms) {
+                event.preventDefault();
+                alert('Vui lòng đồng ý với Điều khoản sử dụng và Chính sách bảo mật');
+                return false;
+            }
+            
+            return true;
         });
 
-        // Password confirmation validation
-        document.getElementById('confirmPassword').addEventListener('input', function() {
-            const password = document.getElementById('password').value;
-            const confirmPassword = this.value;
+        // Add floating animation to shapes
+        const shapes = document.querySelectorAll('.shape');
+        shapes.forEach((shape, index) => {
+            const size = Math.random() * 150 + 50;
+            const duration = Math.random() * 20 + 20;
+            const delay = Math.random() * -20;
+            const posX = Math.random() * 100;
+            const posY = Math.random() * 100;
             
-            if (password !== confirmPassword) {
-                this.setCustomValidity('Mật khẩu không khớp');
-            } else {
-                this.setCustomValidity('');
-            }
+            shape.style.width = `${size}px`;
+            shape.style.height = `${size}px`;
+            shape.style.left = `${posX}%`;
+            shape.style.top = `${posY}%`;
+            shape.style.animation = `float ${duration}s ease-in-out infinite`;
+            shape.style.animationDelay = `${delay}s`;
         });
     </script>
 </body>

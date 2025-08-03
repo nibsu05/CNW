@@ -16,7 +16,9 @@ public class OrderDao {
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-		conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/cnw","root","");
+		// Add useUnicode=true&characterEncoding=UTF-8 to support Vietnamese characters
+		String url = "jdbc:mysql://localhost:3306/cnw?useUnicode=true&characterEncoding=UTF-8";
+		conn = DriverManager.getConnection(url, "root", "");
 	
     }
 

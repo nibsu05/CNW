@@ -378,16 +378,33 @@
     </div>
 
     <div class="login-container">
+        <%-- Display success message after registration --%>
+        <% String success = (String) request.getAttribute("success"); 
+           if (success != null) { %>
+            <div class="success-message" style="color: #4CAF50; background: #e8f5e9; padding: 10px; border-radius: 4px; margin-bottom: 20px; text-align: center;">
+                <%= success %>
+            </div>
+        <% } %>
+        
+        <%-- Display error message if any --%>
+        <% String error = (String) request.getAttribute("error"); 
+           if (error != null) { %>
+            <div class="error-message" style="color: #f44336; background: #ffebee; padding: 10px; border-radius: 4px; margin-bottom: 20px; text-align: center;">
+                <%= error %>
+            </div>
+        <% } %>
+        
         <div class="login-header">
             <h1 class="login-title">Đăng nhập</h1>
+            <p class="login-subtitle">Chào mừng bạn quay trở lại!</p>
         </div>
 
-        <form action="CheckLoginServlet" method="post">
+        <form action="userServlet?action=login" method="post">
             <div class="form-group">
-                <label for="username">Tên đăng nhập</label>
+                <label for="email">Email</label>
                 <div class="input-wrapper">
-                    <i class="fas fa-user input-icon"></i>
-                    <input type="text" id="username" name="username" placeholder="Nhập tên đăng nhập" required>
+                    <i class="fas fa-envelope input-icon"></i>
+                    <input type="email" id="email" name="email" placeholder="Nhập email" required>
                 </div>
             </div>
 
