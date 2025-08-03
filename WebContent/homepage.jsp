@@ -475,8 +475,8 @@
                 <% if(email != null && role == 1){ %>
                 <li><a href="admin_dashboard.jsp"><i class="fas fa-cogs"></i> Quản lý</a></li>
             <% } %>
-            <li><a href="ecards.jsp"><i class="fas fa-envelope"></i> Thiệp</a></li>
-                <li><a href="flowers.jsp"><i class="fas fa-seedling"></i> Hoa</a></li>
+            <li><a href="ProductServlet?action=card"><i class="fas fa-envelope"></i> Thiệp</a></li>
+                <li><a href="ProductServlet?action=flower"><i class="fas fa-seedling"></i> Hoa</a></li>
                 <% if(email == null){ %>
                 <li><a href="login.jsp"><i class="fas fa-sign-in-alt"></i> Đăng nhập</a></li>
             <% }else{ %>
@@ -495,10 +495,10 @@
             <h1>Cùng lan tỏa sự tích cực</h1>
             <p>Beautiful E-Cards & Fresh Flowers Delivered with Love</p>
             <div class="cta-buttons">
-                <a href="ecards.jsp" class="btn btn-primary">
+                <a href="ProductServlet?action=card" class="btn btn-primary">
                     <i class="fas fa-envelope"></i> Tìm thiệp 
                 </a>
-                <a href="flowers.jsp" class="btn btn-secondary">
+                <a href="ProductServlet?action=flower" class="btn btn-secondary">
                     <i class="fas fa-seedling"></i> Tìm hoa
                 </a>
             </div>

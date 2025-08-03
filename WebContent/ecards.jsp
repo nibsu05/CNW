@@ -366,8 +366,8 @@
                 </a>
             </div>
             <ul class="nav-links">
-                <li><a href="ecards.jsp" class="active"><i class="fas fa-envelope"></i> Thiệp</a></li>
-                <li><a href="flowers.jsp"><i class="fas fa-seedling"></i> Hoa</a></li>
+                <li><a href="ProductServlet?action=card" class="active"><i class="fas fa-envelope"></i> Thiệp</a></li>
+                <li><a href="ProductServlet?action=flower"><i class="fas fa-seedling"></i> Hoa</a></li>
                 <li><a href="login.jsp"><i class="fas fa-sign-in-alt"></i> Đăng nhập</a></li>
                 <li><a href="cart.jsp"><i class="fas fa-shopping-cart"></i> Giỏ hàng</a></li>
             </ul>
@@ -416,13 +416,9 @@
                 <div class="products-grid">
                     <%
                         // Tạo danh sách sản phẩm mẫu
-                        List<Product> products = new ArrayList<>();
-                        
-                        // Thêm các sản phẩm thiệp
-                        products.add(new Product(1, "Smile", "Design by Alice Potter", 0, "Sinh nhật", "https://www.openme.com/sites/default/files/styles/card_listing_preview/public/card_listing_thumbs/Catalog-smile.jpg?itok=NAjpze1d", "card"));
-                        products.add(new Product(2, "Monster Mash", "Desgign by Caravan Shirts", 0, "Vui nhộn", "https://www.openme.com/sites/default/files/styles/card_listing_preview/public/card_listing_thumbs/Catalog-monstermash.jpg?itok=PRsg2Qyz", "card"));
-                        products.add(new Product(3, "Gill The Cat", "Desgign by Kim Vervuurt (Threadless)", 0, "Sinh nhật", "https://www.openme.com/sites/default/files/styles/card_listing_preview/public/card_listing_thumbs/Catalog-gilblue.jpg?itok=Z5RJ0xiX", "card"));
-                        
+                        List<Product> products = (List<Product>) request.getAttribute("products");
+
+
                         // Hiển thị sản phẩm
                         for(Product product : products) {
                     %>
@@ -441,7 +437,7 @@
                         <div class="product-info">
                             <div class="product-title"><%= product.getName() %></div>
                             <div class="product-price">
-                                <% if(product.getPrice() == 0) { %>
+                                <% if(product.getPrice().intValue() == 0) { %>
                                     Miễn phí
                                 <% } else { %>
                                     <%= product.getFormattedPrice() %>

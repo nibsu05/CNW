@@ -59,10 +59,15 @@ public class ProductServlet extends HttpServlet {
             case "byPrice":
                 listProductsByPriceRange(request, response);
                 break;
+            case "card":
+                listProductsByCard(request, response);
+                break;
+            case "flower":
+                listProductsByFlower(request, response);
+                break;
             default:
                 listAllProducts(request, response);
         }
-        doPost(request, response); 
     }
 
     @Override
@@ -111,6 +116,22 @@ public class ProductServlet extends HttpServlet {
         List<Product> products = productBo.getProductsByCategory(category);
         request.setAttribute("products", products);
         request.getRequestDispatcher("product_list.jsp").forward(request, response);
+    }
+    
+    // Hiển thị sản phẩm theo loại
+    private void listProductsByCard(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String type = "card";
+        List<Product> products = productBo.getProductsByType(type);
+        request.setAttribute("products", products);
+        request.getRequestDispatcher("ecards.jsp").forward(request, response);
+    }
+    private void listProductsByFlower(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String type = "flower";
+        List<Product> products = productBo.getProductsByType(type);
+        request.setAttribute("products", products);
+        request.getRequestDispatcher("flowers.jsp").forward(request, response);
     }
 
     // Hiển thị sản phẩm khả dụng
