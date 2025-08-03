@@ -15,10 +15,6 @@ import model.dao.ProductDao;
 public class OrderBo {
     private OrderDao orderDAO;
 
-    public Connection getConnection() throws SQLException {
-        return orderDAO.getConnection();
-    }
-
     public OrderBo() {
         try {
 			orderDAO = new OrderDao();
@@ -29,35 +25,7 @@ public class OrderBo {
     }
 
     public boolean insertOrder(Order order) {
-        try {
-            // Start transaction
-            orderDAO.getConnection().setAutoCommit(false);
-            
-            boolean success = orderDAO.insertOrder(order);
-            if (!success) {
-                orderDAO.getConnection().rollback();
-                return false;
-            }
-            
-            orderDAO.getConnection().commit();
-            return true;
-        } catch (SQLException e) {
-            try {
-                if (orderDAO.getConnection() != null) {
-                    orderDAO.getConnection().rollback();
-                }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-            e.printStackTrace();
-            return false;
-        } finally {
-            try {
-                orderDAO.getConnection().setAutoCommit(true);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+        return orderDAO.insertOrder(order);
     }
 
     public boolean updateOrder(Order order) {
@@ -92,33 +60,11 @@ public class OrderBo {
         }
         
         try {
-            // Start transaction
-            orderDAO.getConnection().setAutoCommit(false);
-            
-            boolean success = orderDAO.addOrderItems(orderId, items);
-            if (!success) {
-                orderDAO.getConnection().rollback();
-                return false;
-            }
-            
-            orderDAO.getConnection().commit();
-            return true;
+            // Thực hiện trong transaction để đảm bảo tính toàn vẹn dữ liệu
+            return orderDAO.addOrderItems(orderId, items);
         } catch (SQLException e) {
-            try {
-                if (orderDAO.getConnection() != null) {
-                    orderDAO.getConnection().rollback();
-                }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
             e.printStackTrace();
             return false;
-        } finally {
-            try {
-                orderDAO.getConnection().setAutoCommit(true);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }
     
@@ -170,23 +116,9 @@ public class OrderBo {
             );
             
             PaymentDao paymentDao = new PaymentDao();
-            boolean success = paymentDao.insertPayment(payment);
-            
-            if (!success) {
-                orderDAO.getConnection().rollback();
-                return false;
-            }
-            
-            return true;
+            return paymentDao.insertPayment(payment);
         } catch (Exception e) {
             e.printStackTrace();
-            try {
-                if (orderDAO.getConnection() != null) {
-                    orderDAO.getConnection().rollback();
-                }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
             return false;
         }
     }

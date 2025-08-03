@@ -1,7 +1,6 @@
 package controller;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.util.List;
@@ -86,13 +85,11 @@ public class PaymentServlet extends HttpServlet {
             throws ServletException, IOException {
         String id = request.getParameter("id");
         String orderId = request.getParameter("orderId");
-        String amountStr = request.getParameter("amount");
-        BigDecimal amount = new BigDecimal(amountStr != null && !amountStr.isEmpty() ? amountStr : "0");
         String method = request.getParameter("method");
         String status = request.getParameter("status");
         String paidAtstr = request.getParameter("paidAt");
         Date paidAt = Date.valueOf(paidAtstr);
-        Payment payment = new Payment(id, orderId, amount, method, status, paidAt);
+        Payment payment = new Payment(id, orderId, method, status, paidAt);
         if(payment!=null){
             request.setAttribute("payment", payment);
         request.getRequestDispatcher("payment_detail.jsp").forward(request, response);
@@ -106,13 +103,11 @@ public class PaymentServlet extends HttpServlet {
             throws ServletException, IOException {
         String id = request.getParameter("id");
         String orderId = request.getParameter("orderId");
-        String amountStr = request.getParameter("amount");
-        BigDecimal amount = new BigDecimal(amountStr != null && !amountStr.isEmpty() ? amountStr : "0");
         String method = request.getParameter("method");
         String status = request.getParameter("status");
         String paidAtstr = request.getParameter("paidAt");
         Date paidAt = Date.valueOf(paidAtstr);
-        Payment payment = new Payment(id, orderId, amount, method, status, paidAt);
+        Payment payment = new Payment(id, orderId, method, status, paidAt);
         if(payment!=null){
             request.setAttribute("payment", payment);
         request.getRequestDispatcher("payment_detail.jsp").forward(request, response);

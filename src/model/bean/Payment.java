@@ -1,26 +1,22 @@
 package model.bean;
 
 import java.sql.Date;
-import java.math.BigDecimal;
 
 public class Payment
 {
     private String Id;
     private String orderId;
-    private BigDecimal amount;
     private String method;
     private String status;
     private Date paidAt;
-    
     public Payment()
     {
+
     }
-    
-    public Payment(String Id, String orderId, BigDecimal amount, String method, String status, Date paidAt)
+    public Payment(String Id, String orderId, String method, String status, Date paidAt)
     {
         this.Id = Id;
         this.orderId = orderId;
-        this.amount = amount;
         this.method = method;
         this.status = status;
         this.paidAt = paidAt;
@@ -32,10 +28,6 @@ public class Payment
     public String getOrderId()
     {
         return this.orderId;
-    }
-    public BigDecimal getAmount()
-    {
-        return this.amount;
     }
     public String getMethod()
     {

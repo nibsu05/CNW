@@ -10,25 +10,18 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public class OrderDao {
-    private final Connection conn;
+    private Connection conn;
 
     public OrderDao() throws SQLException  {
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        // Add useUnicode=true&characterEncoding=UTF-8 to support Vietnamese characters
-        String url = "jdbc:mysql://localhost:3306/cnw?useUnicode=true&characterEncoding=UTF-8";
-        conn = DriverManager.getConnection(url, "root", "");
-    }
-    
-    /**
-     * Get the database connection for transaction management
-     * @return the database connection
-     */
-    public Connection getConnection() {
-        return conn;
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		// Add useUnicode=true&characterEncoding=UTF-8 to support Vietnamese characters
+		String url = "jdbc:mysql://localhost:3306/cnw?useUnicode=true&characterEncoding=UTF-8";
+		conn = DriverManager.getConnection(url, "root", "");
+	
     }
 
     public List<Order> getAllOrders() {

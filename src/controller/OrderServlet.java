@@ -1,11 +1,6 @@
 package controller;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.SQLException;
-import java.util.Calendar;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -16,11 +11,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import model.bean.Cart;
-import model.bean.CartItem;
 import model.bean.Order;
-import model.bean.User;
 import model.bo.OrderBo;
-import model.dao.OrderDao;
 
 /**
  * Servlet implementation class OrderServlet
@@ -71,7 +63,7 @@ public class OrderServlet extends HttpServlet {
                 deleteOrder(request, response);
                 break;
             default:
-                response.sendRedirect("OrderServlet");
+                response.sendRedirect("orderServlet");
         }
     }
 
@@ -80,7 +72,7 @@ public class OrderServlet extends HttpServlet {
             throws ServletException, IOException {
         List<Order> orders = orderBo.getAllOrders();
         request.setAttribute("orders", orders);
-        request.getRequestDispatcher("homepage.jsp").forward(request, response);
+        request.getRequestDispatcher("order_list.jsp").forward(request, response);
     }
 
     // Hiển thị đơn hàng theo trạng thái
@@ -89,7 +81,7 @@ public class OrderServlet extends HttpServlet {
         String status = request.getParameter("status");
         List<Order> orders = orderBo.getOrdersByStatus(status);
         request.setAttribute("orders", orders);
-        request.getRequestDispatcher("homepage.jsp").forward(request, response);
+        request.getRequestDispatcher("order_list.jsp").forward(request, response);
     }
 
     // Xem chi tiết đơn hàng
@@ -104,9 +96,6 @@ public class OrderServlet extends HttpServlet {
     // Thêm đơn hàng
     private void addOrder(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        Connection connection = null;
-        boolean transactionSuccess = false;
-        
         try {
             // Lấy thông tin từ session
             HttpSession session = request.getSession();
@@ -146,86 +135,48 @@ public class OrderServlet extends HttpServlet {
                 createAt
             );
             
-            // Bắt đầu transaction
-            connection = orderBo.getConnection();
-            connection.setAutoCommit(false);
-            
-            // 1. Thêm đơn hàng vào database
+            // Thêm đơn hàng vào database
             boolean orderSuccess = orderBo.insertOrder(order);
             
-            if (!orderSuccess) {
-                throw new Exception("Lỗi khi thêm đơn hàng vào database");
+            if (orderSuccess) {
+                // Thêm các sản phẩm vào order_items
+                boolean itemsSuccess = orderBo.addOrderItems(orderId, cart.getItems());
+                
+                if (itemsSuccess) {
+                    // Cập nhật số lượng tồn kho
+                    boolean stockUpdated = orderBo.updateProductStock(cart.getItems());
+                    
+                    if (stockUpdated) {
+                        // Tạo thanh toán - Sử dụng phương thức hiện có trong OrderBo
+                        String paymentId = "PAY" + System.currentTimeMillis();
+                        boolean paymentSuccess = orderBo.processPayment(
+                            paymentId,
+                            orderId,
+                            totalPrice,
+                            paymentMethod,
+                            "PENDING"
+                        );
+                        
+                        if (paymentSuccess) {
+                            // Xóa giỏ hàng sau khi đặt hàng thành công
+                            session.removeAttribute("cart");
+                            
+                            // Chuyển hướng đến trang cảm ơn
+                            response.sendRedirect("order_success.jsp?orderId=" + orderId);
+                            return;
+                        }
+                    }
+                }
             }
             
-            // 2. Thêm các sản phẩm vào order_items
-            boolean itemsSuccess = orderBo.addOrderItems(orderId, cart.getItems());
-            
-            if (!itemsSuccess) {
-                throw new Exception("Lỗi khi thêm sản phẩm vào đơn hàng");
-            }
-            
-            // 3. Cập nhật số lượng tồn kho
-            boolean stockUpdated = orderBo.updateProductStock(cart.getItems());
-            
-            if (!stockUpdated) {
-                throw new Exception("Lỗi khi cập nhật tồn kho");
-            }
-            
-            // 4. Tạo thanh toán
-            String paymentId = "PAY" + System.currentTimeMillis();
-            boolean paymentSuccess = orderBo.processPayment(
-                paymentId,
-                orderId,
-                totalPrice,
-                paymentMethod,
-                "PENDING"
-            );
-            
-            if (!paymentSuccess) {
-                throw new Exception("Lỗi khi tạo thanh toán");
-            }
-            
-            // Nếu mọi thứ thành công, commit transaction
-            connection.commit();
-            transactionSuccess = true;
-            
-            // Xóa giỏ hàng sau khi đặt hàng thành công
-            session.removeAttribute("cart");
-            
-            // Chuyển hướng đến trang cảm ơn
-            response.sendRedirect("order_success.jsp?orderId=" + orderId);
+            // Nếu có lỗi xảy ra
+            request.setAttribute("error", "Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại sau!");
+            request.getRequestDispatcher("checkout.jsp").forward(request, response);
             
         } catch (Exception e) {
             e.printStackTrace();
-            
-            // Rollback transaction nếu có lỗi
-            if (connection != null) {
-                try {
-                    connection.rollback();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
-            
-            // Ghi log lỗi
-            System.err.println("Lỗi trong quá trình đặt hàng: " + e.getMessage());
-            
-            // Giữ lại thông tin form để người dùng không phải nhập lại
-            request.setAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
+            request.setAttribute("error", "Lỗi hệ thống: " + e.getMessage());
             request.getRequestDispatcher("checkout.jsp").forward(request, response);
-            
-        } finally {
-            // Đặt lại auto-commit và đóng kết nối
-            if (connection != null) {
-                try {
-                    if (!transactionSuccess) {
-                        connection.rollback();
-                    }
-                    connection.setAutoCommit(true);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
 
@@ -248,7 +199,7 @@ public class OrderServlet extends HttpServlet {
         } else {
             request.setAttribute("error", "Thêm đơn hàng thất bại!");
         }
-        response.sendRedirect("OrderServlet");
+        response.sendRedirect("orderServlet");
 
     }
 
@@ -258,6 +209,6 @@ public class OrderServlet extends HttpServlet {
         String id = request.getParameter("id");
         boolean success = orderBo.deleteOrder(id);
         // Có thể set message nếu muốn
-        response.sendRedirect("OrderServlet");
+        response.sendRedirect("orderServlet");
     }
 }

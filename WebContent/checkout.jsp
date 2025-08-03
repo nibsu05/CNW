@@ -262,15 +262,7 @@
 <div class="container" style="margin-top:40px;">
     <h1>Thông tin thanh toán</h1>
 
-    <%-- Hiển thị thông báo lỗi nếu có --%>
-    <% if (request.getAttribute("error") != null) { %>
-        <div class="error-message" style="color: #ff6b6b; margin-bottom: 20px; padding: 10px; background: #fff0f0; border-radius: 5px; text-align: center;">
-            <%= request.getAttribute("error") %>
-        </div>
-    <% } %>
-    
-    <form id="checkoutForm" action="OrderServlet" method="POST" onsubmit="return submitCheckoutForm(event)">
-        <input type="hidden" name="action" value="add">
+    <form action="OrderServlet" method="POST" onsubmit="return validateCheckoutForm()">
         <h2>Thông tin khách hàng</h2>
         <div class="form-group">
             <label for="fullName">Họ và tên <span class="required">*</span></label>
@@ -355,83 +347,17 @@
         
         // Kiểm tra thời gian giao hàng phải trong tương lai
         if (deliveryTime <= now) {
-            showError('Vui lòng chọn thời gian giao hàng trong tương lai');
+            alert('Vui lòng chọn thời gian giao hàng trong tương lai');
             return false;
         }
         
         // Kiểm tra điều khoản
         if (!document.getElementById('agreeTerms').checked) {
-            showError('Vui lòng đồng ý với điều khoản và điều kiện');
+            alert('Vui lòng đồng ý với điều khoản và điều kiện');
             return false;
         }
         
         return true;
-    }
-    
-    function showError(message) {
-        // Xóa thông báo lỗi cũ nếu có
-        const oldError = document.querySelector('.error-message');
-        if (oldError) {
-            oldError.remove();
-        }
-        
-        // Tạo thông báo lỗi mới
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'error-message';
-        errorDiv.style.cssText = 'color: #ff6b6b; margin-bottom: 20px; padding: 10px; background: #fff0f0; border-radius: 5px; text-align: center;';
-        errorDiv.textContent = message;
-        
-        // Chèn thông báo lỗi vào sau tiêu đề
-        const form = document.querySelector('form');
-        form.parentNode.insertBefore(errorDiv, form);
-        
-        // Cuộn đến lỗi
-        errorDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-    
-    function submitCheckoutForm(event) {
-        event.preventDefault();
-        
-        if (!validateCheckoutForm()) {
-            return false;
-        }
-        
-        // Hiển thị loading
-        const submitBtn = document.querySelector('button[type="submit"]');
-        const originalBtnText = submitBtn.innerHTML;
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
-        
-        // Lấy dữ liệu form
-        const form = document.getElementById('checkoutForm');
-        const formData = new FormData(form);
-        
-        // Thêm totalPrice vào form data
-        const totalPrice = document.querySelector('.total-amount').textContent.replace(/[^\d,]/g, '').replace(',', '.');
-        formData.append('totalPrice', totalPrice);
-        
-        // Gửi dữ liệu
-        fetch('OrderServlet', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => {
-            if (response.redirected) {
-                window.location.href = response.url;
-            } else {
-                return response.text().then(text => {
-                    throw new Error(text || 'Có lỗi xảy ra khi xử lý đơn hàng');
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showError(error.message || 'Có lỗi xảy ra khi gửi đơn hàng. Vui lòng thử lại sau.');
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalBtnText;
-        });
-        
-        return false;
     }
     
     // Đặt giá trị mặc định cho thời gian giao hàng (2 giờ sau thời điểm hiện tại)

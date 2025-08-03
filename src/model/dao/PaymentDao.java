@@ -17,17 +17,17 @@ public class PaymentDao {
 
     public List<Payment> getAll() {
         List<Payment> list = new ArrayList<>();
-        try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM payment");
-             ResultSet rs = ps.executeQuery()) {
+        try {
+            String sql = "SELECT * FROM payment";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                Payment p = new Payment(
-                    rs.getString("Id"),
-                    rs.getString("OrderId"),
-                    rs.getBigDecimal("Amount"),
-                    rs.getString("Method"),
-                    rs.getString("Status"),
-                    rs.getDate("PaidAt")
-                );
+                Payment p = new Payment();
+                p.setId(rs.getString("Id"));
+                p.setOrderId(rs.getString("OrderId"));
+                p.setMethod(rs.getString("Method"));
+                p.setStatus(rs.getString("Status"));
+                p.setPaidAt(rs.getDate("PaidAt"));
                 list.add(p);
             }
         } catch (SQLException e) {
@@ -37,20 +37,19 @@ public class PaymentDao {
     }
 
     public Payment getById(String id) {
-        String sql = "SELECT * FROM payment WHERE Id = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try {
+            String sql = "SELECT * FROM payment WHERE Id = ?";
+            PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, id);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return new Payment(
-                        rs.getString("Id"),
-                        rs.getString("OrderId"),
-                        rs.getBigDecimal("Amount"),
-                        rs.getString("Method"),
-                        rs.getString("Status"),
-                        rs.getDate("PaidAt")
-                    );
-                }
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                Payment p = new Payment();
+                p.setId(rs.getString("Id"));
+                p.setOrderId(rs.getString("OrderId"));
+                p.setMethod(rs.getString("Method"));
+                p.setStatus(rs.getString("Status"));
+                p.setPaidAt(rs.getDate("PaidAt"));
+                return p;
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -59,21 +58,15 @@ public class PaymentDao {
     }
 
     public boolean insert(Payment p) {
-        return insertPayment(p);
-    }
-    
-    public boolean insertPayment(Payment p) {
         try {
-            String sql = "INSERT INTO payment(Id, OrderId, Amount, Method, Status, PaidAt) VALUES (?, ?, ?, ?, ?, ?)";
-            try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(1, p.getId());
-                ps.setString(2, p.getOrderId());
-                ps.setBigDecimal(3, p.getAmount());
-                ps.setString(4, p.getMethod());
-                ps.setString(5, p.getStatus());
-                ps.setDate(6, new java.sql.Date(p.getPaidAt().getTime()));
-                return ps.executeUpdate() > 0;
-            }
+            String sql = "INSERT INTO payment(Id, OrderId, Method, Status, PaidAt) VALUES (?, ?, ?, ?, ?)";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, p.getId());
+            ps.setString(2, p.getOrderId());
+            ps.setString(3, p.getMethod());
+            ps.setString(4, p.getStatus());
+            ps.setDate(5, new java.sql.Date(p.getPaidAt().getTime()));
+            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -81,19 +74,19 @@ public class PaymentDao {
     }
 
     public boolean update(Payment p) {
-        String sql = "UPDATE payment SET OrderId = ?, Amount = ?, Method = ?, Status = ?, PaidAt = ? WHERE Id = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try {
+            String sql = "UPDATE payment SET OrderId = ?, Method = ?, Status = ?, PaidAt = ? WHERE Id = ?";
+            PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, p.getOrderId());
-            ps.setBigDecimal(2, p.getAmount());
-            ps.setString(3, p.getMethod());
-            ps.setString(4, p.getStatus());
-            ps.setDate(5, new java.sql.Date(p.getPaidAt().getTime()));
-            ps.setString(6, p.getId());
+            ps.setString(2, p.getMethod());
+            ps.setString(3, p.getStatus());
+            ps.setDate(4, new java.sql.Date(p.getPaidAt().getTime()));
+            ps.setString(5, p.getId());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
+        return false;
     }
 
     public boolean delete(String id) {
