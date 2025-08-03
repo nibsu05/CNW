@@ -2,6 +2,7 @@ package controller;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -13,6 +14,7 @@ import model.bean.Cart;
 import model.bean.Order;
 import model.bean.Product;
 import model.bean.User;
+import model.bo.DuplicateCheckerBo;
 import model.bo.OrderBo;
 import model.bo.ProductBo;
 import model.bo.UserBo;
@@ -21,7 +23,7 @@ public class userServlet {
 
     // Thêm User
     private void addUser(HttpServletRequest request, HttpServletResponse response) 
-            throws IOException, ServletException {
+            throws IOException, ServletException, SQLException {
         String id = request.getParameter("id");
         String name = request.getParameter("name");
         String address = request.getParameter("address");
@@ -31,18 +33,22 @@ public class userServlet {
         int role = Integer.parseInt(request.getParameter("role"));
         String createAtstr = request.getParameter("createAt");  // "2025-08-02"
         java.sql.Date createAt = java.sql.Date.valueOf(createAtstr);
-        // Các trường khác nếu có
+        DuplicateCheckerBo DCheck = new DuplicateCheckerBo();
+        if(DCheck.isIdDuplicate("user", "Id", id) && DCheck.isUserEmailDuplicate(email)){
+            User user = new User(id,name,email,password,phone,address,role,createAt);
+            UserBo userBo = new UserBo();
+            boolean success = userBo.insertUser(user);
 
-        User user = new User(id,name,email,password,phone,address,role,createAt);
-        UserBo userBo = new UserBo();
-        boolean success = userBo.insertUser(user);
-
-        if (success) {
-            request.setAttribute("message", "Thêm người dùng thành công!");
-        } else {
-            request.setAttribute("error", "Thêm người dùng thất bại!");
+            if (success) {
+                request.setAttribute("message", "Cập nhật người dùng thành công!");
+            } else {
+                request.setAttribute("error", "Cập nhật người dùng thất bại!");
+            }
+            request.getRequestDispatcher("admin_user.jsp").forward(request, response);
         }
-        request.getRequestDispatcher("admin_user.jsp").forward(request, response);
+        else{
+            request.setAttribute("Error", "Thất bại khi thêm khách hàng, yêu cầu nhập lại!");
+        }
     }
 
     //Muốn xem các hoá đơn và tổng tiền
@@ -146,7 +152,7 @@ public class userServlet {
     
     // Sửa User
     private void updateUser(HttpServletRequest request, HttpServletResponse response) 
-            throws IOException, ServletException {
+            throws IOException, ServletException, SQLException {
         String id = request.getParameter("id");
         String name = request.getParameter("name");
         String address = request.getParameter("address");
@@ -156,18 +162,25 @@ public class userServlet {
         int role = Integer.parseInt(request.getParameter("role"));
         String createAtstr = request.getParameter("createAt");  // "2025-08-02"
         java.sql.Date createAt = java.sql.Date.valueOf(createAtstr);
+        DuplicateCheckerBo DCheck = new DuplicateCheckerBo();
+        if(DCheck.isIdDuplicate("user", "Id", id) && DCheck.isUserEmailDuplicate(email)){
+            User user = new User(id,name,email,password,phone,address,role,createAt);
+            UserBo userBo = new UserBo();
+            boolean success = userBo.insertUser(user);
+
+            if (success) {
+                request.setAttribute("message", "Cập nhật người dùng thành công!");
+            } else {
+                request.setAttribute("error", "Cập nhật người dùng thất bại!");
+            }
+            request.getRequestDispatcher("admin_user.jsp").forward(request, response);
+        }
+        else{
+            request.setAttribute("Error", "Bị trùng dữ liệu khi cập nhật khách hàng, yêu cầu nhập lại!");
+        }
         // Các trường khác nếu có
 
-        User user = new User(id,name,email,password,phone,address,role,createAt);
-        UserBo userBo = new UserBo();
-        boolean success = userBo.insertUser(user);
-
-        if (success) {
-            request.setAttribute("message", "Cập nhật người dùng thành công!");
-        } else {
-            request.setAttribute("error", "Cập nhật người dùng thất bại!");
-        }
-        request.getRequestDispatcher("admin_user.jsp").forward(request, response);
+        
     }
 
     private void login(HttpServletRequest request, HttpServletResponse response)
