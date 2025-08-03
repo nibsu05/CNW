@@ -356,6 +356,11 @@
     </style>
 </head>
 <body>
+            <%
+    String email = (String) session.getAttribute("email");
+    Object roleObj = session.getAttribute("role");
+    int role = (roleObj != null) ? (int) roleObj : 0; // Default to 0 (regular user) if not logged in
+%>
     <!-- Header -->
     <header>
         <nav class="container">
@@ -368,7 +373,11 @@
             <ul class="nav-links">
                 <li><a href="ProductServlet?action=card" class="active"><i class="fas fa-envelope"></i> Thiệp</a></li>
                 <li><a href="ProductServlet?action=flower"><i class="fas fa-seedling"></i> Hoa</a></li>
-                <li><a href="login.jsp"><i class="fas fa-sign-in-alt"></i> Đăng nhập</a></li>
+                                <% if(email==null){ %>
+                    <li><a href="login.jsp"><i class="fas fa-sign-in-alt"></i> Đăng nhập</a></li>
+                <% } else { %>
+                    <li><a href="LogoutServlet"><i class="fas fa-sign-out-alt"></i> Đăng xuất (<%= email %>)</a></li>
+                <% } %>
                 <li><a href="cart.jsp"><i class="fas fa-shopping-cart"></i> Giỏ hàng</a></li>
             </ul>
         </nav>
@@ -422,6 +431,7 @@
                         // Hiển thị sản phẩm
                         for(Product product : products) {
                     %>
+                    <a href="ProductServlet?action=view&id=<%= product.getId() %>" style="text-decoration: none; color: inherit;">
                     <div class="product-item">
                         <div class="product-image">
                             <% if(product.getImageUrl() != null && !product.getImageUrl().isEmpty()) { %>
@@ -445,6 +455,7 @@
                             </div>
                         </div>
                     </div>
+                    </a>
                     <%
                         }
                     %>

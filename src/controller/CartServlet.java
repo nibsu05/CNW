@@ -1,8 +1,10 @@
 package controller;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -11,11 +13,23 @@ import javax.servlet.http.HttpSession;
 
 import model.bean.Cart;
 import model.bean.Product;
+import model.bo.OrderBo;
 import model.bo.ProductBo;
 
 @WebServlet("/CartServlet")
 public class CartServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    private ProductBo productBo;
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        try {
+			productBo = new ProductBo();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
     
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
@@ -66,32 +80,30 @@ public class CartServlet extends HttpServlet {
     
     private void addToCart(HttpServletRequest request, HttpServletResponse response, Cart cart) 
             throws ServletException, IOException {
-        
         try {
+
             String productId = request.getParameter("productId");
             int quantity = Integer.parseInt(request.getParameter("quantity"));
             
             // Đã lấy product từ db
             Product product = createSampleProduct(productId);
-            
+            String referer = request.getHeader("Referer");
             if (product != null) {
                 cart.addItem(product, quantity);
-                request.setAttribute("message", "Đã thêm sản phẩm vào giỏ hàng!");
-            } else {
-                request.setAttribute("error", "Không tìm thấy sản phẩm!");
-            }
+                if (referer != null) {
+                    response.sendRedirect("homepage.jsp?message=1");
+                } else {
+                    response.sendRedirect("homepage.jsp");
+                }
+            } 
             
         } catch (NumberFormatException e) {
             request.setAttribute("error", "Dữ liệu không hợp lệ!");
         }
         
         // Redirect về trang trước đó
-        String referer = request.getHeader("Referer");
-        if (referer != null) {
-            response.sendRedirect(referer);
-        } else {
-            response.sendRedirect("homepage.jsp");
-        }
+        
+
     }
     
     private void removeFromCart(HttpServletRequest request, HttpServletResponse response, Cart cart) 
@@ -141,8 +153,8 @@ public class CartServlet extends HttpServlet {
     
     // Tạo sản phẩm mẫu (trong thực tế sẽ lấy từ database)
     private Product createSampleProduct(String productId) {
-        ProductBo p = new ProductBo();
-        return p.getProductById(productId);
+
+        return productBo.getProductById(productId);
     }
     
 }

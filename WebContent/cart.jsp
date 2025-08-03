@@ -380,6 +380,11 @@
 </head>
 
 <body>
+            <%
+    String email = (String) session.getAttribute("email");
+    Object roleObj = session.getAttribute("role");
+    int role = (roleObj != null) ? (int) roleObj : 0; // Default to 0 (regular user) if not logged in
+%>
 <header>
     <nav class="container">
         <div class="logo">
@@ -388,9 +393,13 @@
             </a>
         </div>
         <ul class="nav-links">
-            <li><a href="ecards.jsp"><i class="fas fa-envelope"></i> Thiệp</a></li>
-            <li><a href="flowers.jsp"><i class="fas fa-seedling"></i> Hoa</a></li>
-            <li><a href="login.jsp"><i class="fas fa-sign-in-alt"></i> Đăng nhập</a></li>
+                <li><a href="ProductServlet?action=card"><i class="fas fa-envelope"></i> Thiệp</a></li>
+                <li><a href="ProductServlet?action=flower" class="active"><i class="fas fa-seedling"></i> Hoa</a></li>
+            <                               <% if(email==null){ %>
+                    <li><a href="login.jsp"><i class="fas fa-sign-in-alt"></i> Đăng nhập</a></li>
+                <% } else { %>
+                    <li><a href="LogoutServlet"><i class="fas fa-sign-out-alt"></i> Đăng xuất (<%= email %>)</a></li>
+                <% } %>>
             <li><a href="cart.jsp" class="active"><i class="fas fa-shopping-cart"></i> Giỏ hàng</a></li>
         </ul>
     </nav>
@@ -408,25 +417,9 @@
                 // Lấy giỏ hàng từ session
                 Cart cart = (Cart) session.getAttribute("cart");
 
-                // Nếu chưa có thì tạo mới để test
-                if (cart == null) {
-                    cart = new Cart();
-                    session.setAttribute("cart", cart);
 
-                    // Thêm sản phẩm test
-                    Product testProduct = new Product(1, "Bó Hoa Hồng Kem Dâu Sinh Nhật Vui Tươi",
-                            "Bó Hoa Hồng Kem Dâu", 380000, "Sinh nhật",
-                            "https://vuonhoatuoi.vn/wp-content/uploads/2021/10/Hoa-Bo-Gia-Re-Hong-Trang-Garden-2-640x800.webp", 
-                            "flower");
-                    Product testProduct2 = new Product(3, "Gill The Cat", "Desgign by Kim Vervuurt (Threadless)",
-                                                        0, "Sinh nhật",
-                                                        "https://www.openme.com/sites/default/files/styles/card_listing_preview/public/card_listing_thumbs/Catalog-gilblue.jpg?itok=Z5RJ0xiX",
-                                                        "card");
-                    cart.addItem(testProduct, 2);
-                    cart.addItem(testProduct2, 5);
-                }
 
-                if (cart.isEmpty()) {
+                if (cart == null || cart.isEmpty()) {
             %>
             <!-- Giỏ hàng trống -->
             <div class="empty-cart">
@@ -463,23 +456,23 @@
                         <p><%= p.getDescription() %></p>
                     </div>
                     <div class="item-price">
-                        <% if (p.getPrice() == 0) { %>
+                        <% if (p.getPrice().intValue() == 0) { %>
                             Miễn phí
                         <% } else { %>
                             <%= String.format("%,.0f₫", p.getPrice()) %>
                         <% } %>
                     </div>
                     <div class="quantity-controls">
-                        <button class="quantity-btn" onclick="updateQuantity(<%= p.getId() %>, -1)">
-                            <i class="fas fa-minus"></i>
-                        </button>
-                        <input type="number" class="quantity-input" value="<%= item.getQuantity() %>" 
-                               min="1" onchange="updateQuantity(<%= p.getId() %>, this.value, true)">
-                        <button class="quantity-btn" onclick="updateQuantity(<%= p.getId() %>, 1)">
-                            <i class="fas fa-plus"></i>
-                        </button>
+<button class="quantity-btn" type="button" onclick="updateQuantity('<%= p.getId() %>', parseInt(document.querySelector('input[data-id=<%= p.getId() %>]').value) - 1)">-</button>
+                       <input type="number" class="quantity-input"
+					       data-id="<%= p.getId() %>"
+					       value="<%= item.getQuantity() %>"
+					       min="1"
+					       onchange="updateQuantity('<%= p.getId() %>', this.value, true)">
+
+                        <button class="quantity-btn" type="button" onclick="updateQuantity('<%= p.getId() %>', parseInt(document.querySelector('input[data-id=<%= p.getId() %>]').value) + 1)">+</button>
                     </div>
-                    <div class="remove-btn" onclick="removeItem(<%= p.getId() %>)">
+                    <div class="remove-btn" onclick="removeItem('<%= p.getId() %>')">
                         <i class="fas fa-trash"></i>
                     </div>
                 </div>
@@ -515,94 +508,56 @@
     </div>
 </div>
 
-    <script>
-        function updateQuantity(productId, change, isDirectInput = false) {
-            let quantity;
-            if (isDirectInput) {
-                quantity = parseInt(change);
-            } else {
-                const input = document.querySelector(`input[onchange*="${productId}"]`);
-                quantity = parseInt(input.value) + parseInt(change);
-            }
-            
-            if (quantity < 1) quantity = 1;
-            
+<script>
+    function clearCart() {
+        if (confirm('Bạn có chắc muốn xóa toàn bộ giỏ hàng?')) {
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = 'CartServlet';
-            
+
             const actionInput = document.createElement('input');
             actionInput.type = 'hidden';
             actionInput.name = 'action';
-            actionInput.value = 'update';
-            
-            const productIdInput = document.createElement('input');
-            productIdInput.type = 'hidden';
-            productIdInput.name = 'productId';
-            productIdInput.value = productId;
-            
-            const quantityInput = document.createElement('input');
-            quantityInput.type = 'hidden';
-            quantityInput.name = 'quantity';
-            quantityInput.value = quantity;
-            
+            actionInput.value = 'clear';
+
             form.appendChild(actionInput);
-            form.appendChild(productIdInput);
-            form.appendChild(quantityInput);
-            
             document.body.appendChild(form);
             form.submit();
         }
-        
-        function removeItem(productId) {
-            if (confirm('Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?')) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = 'CartServlet';
-                
-                const actionInput = document.createElement('input');
-                actionInput.type = 'hidden';
-                actionInput.name = 'action';
-                actionInput.value = 'remove';
-                
-                const productIdInput = document.createElement('input');
-                productIdInput.type = 'hidden';
-                productIdInput.name = 'productId';
-                productIdInput.value = productId;
-                
-                form.appendChild(actionInput);
-                form.appendChild(productIdInput);
-                
-                document.body.appendChild(form);
-                form.submit();
-            }
+    }
+
+    function checkout() {
+        document.getElementById('checkoutModal').style.display = 'flex';
+        document.getElementById('checkoutFrame').src = 'checkout.jsp';
+    }
+
+    function updateQuantity(productId, value, isDirectInput = false) {
+        const selector = `input[data-id="${productId}"]`;
+        let input = document.querySelector(selector);
+
+        if (!input) {
+            console.error("Không tìm thấy input cho sản phẩm:", productId);
+            return;
         }
-        
-        function clearCart() {
-            if (confirm('Bạn có chắc muốn xóa toàn bộ giỏ hàng?')) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = 'CartServlet';
-                
-                const actionInput = document.createElement('input');
-                actionInput.type = 'hidden';
-                actionInput.name = 'action';
-                actionInput.value = 'clear';
-                
-                form.appendChild(actionInput);
-                
-                document.body.appendChild(form);
-                form.submit();
-            }
+
+        let quantity = isDirectInput ? parseInt(value) : value;
+        if (isNaN(quantity) quantity = 1;
+        if (quantity < 1) quantity = 1;
+
+        // Chuyển hướng để cập nhật
+        window.location.href = `CartServlet?action=update&productId=${productId}&quantity=${quantity}`;
+    }
+
+    function removeItem(productId) {
+        if (confirm("Bạn có chắc muốn xóa sản phẩm này?")) {
+            window.location.href = `CartServlet?action=remove&productId=${productId}`;
         }
-        
-        function checkout() {
-            // Mở trang thanh toán trong cửa sổ popup
-            document.getElementById('checkoutModal').style.display = 'flex';
-            document.getElementById('checkoutFrame').src = 'checkout.jsp';
-            
-        }
-    </script>
+    }
+
+    function closeCheckout() {
+        document.getElementById('checkoutModal').style.display = 'none';
+    }
+</script>
 <!-- Modal for Checkout -->
 <div id="checkoutModal" class="modal">
     <div class="modal-content">

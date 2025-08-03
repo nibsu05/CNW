@@ -10,9 +10,7 @@ public class PaymentDao {
     private Connection conn;
 
     public PaymentDao() throws SQLException {
-        // Add useUnicode=true&characterEncoding=UTF-8 to support Vietnamese characters
-        String url = "jdbc:mysql://localhost:3306/cnw?useUnicode=true&characterEncoding=UTF-8";
-        conn = DriverManager.getConnection(url, "root", "");
+        conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/cnw", "root", "");
     }
 
     public List<Payment> getAll() {

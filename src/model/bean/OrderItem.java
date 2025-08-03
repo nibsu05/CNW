@@ -23,6 +23,7 @@ public class OrderItem
         this.price = price;
         this.note = note;
     }
+
     public String getId()
     {
         return this.Id;

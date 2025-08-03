@@ -10,12 +10,9 @@ import java.util.List;
 public class ProductBo {
     private ProductDao productDao;
 
-    public ProductBo() {
-        try {
+    public ProductBo() throws SQLException {
 			productDao = new ProductDao();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+
     }
 // lấy tất cả sản phẩm
     public List<Product> getAllProducts() {
@@ -49,4 +46,9 @@ public class ProductBo {
     public boolean deleteProduct(String id) {
         return productDao.deleteProduct(id);
     }
+// Lấy theo loại 
+    public List<Product> getProductsByType(String type) {
+        return productDao.getProductsByType(type);
+    }
+//thêm 
 }

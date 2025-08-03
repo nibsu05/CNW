@@ -11,7 +11,7 @@ public class Product {
     private String imageUrl;
     private String type; // "flower" hoặc "card"
     private int stock;
-    private boolean isAvailable;
+    private boolean isAvailable = stock > 0;
     
     // Constructor mặc định
     public Product() {
@@ -27,7 +27,7 @@ public class Product {
         this.imageUrl = imageUrl;
         this.type = type;
         this.stock = stock;
-        this.isAvailable = true;
+        this.isAvailable = stock > 0;
     }
     
     public int getStock() {
@@ -36,6 +36,7 @@ public class Product {
 
 	public void setStock(int stock) {
 		this.stock = stock;
+		this.isAvailable = stock > 0;
 	}
 
 	// Getters và Setters

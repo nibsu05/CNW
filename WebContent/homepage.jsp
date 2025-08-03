@@ -486,6 +486,11 @@
             </ul>
         </nav>
     </header>
+        <% if (request.getParameter("message") != null) { %>
+    <script>
+        alert("Thêm vào giỏ hàng thành công!");
+    </script>
+<% } %>
 
     <!-- Hero Section -->
     <section id="home" class="hero">

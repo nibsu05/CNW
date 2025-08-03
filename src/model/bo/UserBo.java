@@ -29,20 +29,8 @@ public class UserBo {
         return dao.getUserByEmail(email);
     }
 
-    public boolean insertUser(User user) {
-        try {
-            // Ensure all string fields are properly encoded
-            if (user.getName() != null) {
-                user.setName(new String(user.getName().getBytes("UTF-8"), "UTF-8"));
-            }
-            if (user.getAddress() != null) {
-                user.setAddress(new String(user.getAddress().getBytes("UTF-8"), "UTF-8"));
-            }
-            return dao.insertUser(user);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+    public boolean insertUser(User u) {
+        return dao.insertUser(u);
     }
 
     public boolean updateUser(User u) {

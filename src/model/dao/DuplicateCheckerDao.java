@@ -15,9 +15,7 @@ public class DuplicateCheckerDao {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        // Add useUnicode=true&characterEncoding=UTF-8 to support Vietnamese characters
-        String url = "jdbc:mysql://localhost:3306/cnw?useUnicode=true&characterEncoding=UTF-8";
-        conn = DriverManager.getConnection(url, "root", "");
+        conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/cnw", "root", "");
     }
 
     /**
