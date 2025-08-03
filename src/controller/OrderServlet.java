@@ -17,10 +17,8 @@ import model.bean.User;
 import model.bo.OrderBo;
 import model.bo.UserBo;
 
-/**
- * Servlet implementation class OrderServlet
- */
-@WebServlet("/OrderServlet")
+@WebServlet("/Order")
+
 public class OrderServlet extends HttpServlet {
 
     private OrderBo orderBo;
@@ -75,7 +73,7 @@ public class OrderServlet extends HttpServlet {
             throws ServletException, IOException {
         List<Order> orders = orderBo.getAllOrders();
         request.setAttribute("orders", orders);
-        request.getRequestDispatcher("order_list.jsp").forward(request, response);
+        request.getRequestDispatcher("orders_list.jsp").forward(request, response);
     }
 
     // Hiển thị đơn hàng theo trạng thái

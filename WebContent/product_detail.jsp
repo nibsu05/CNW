@@ -1,3 +1,4 @@
+<%@page import="java.math.BigDecimal"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.*" %>
 <%@ page import="model.bean.Product" %>
@@ -89,39 +90,35 @@
                 </a>
             </div>
             <%
-                String username = "admin";
-                String role = "admin";
-                // String username = (String) session.getAttribute("username");
-                // String role = (String) session.getAttribute("role");
-            %>
+    String email = (String) session.getAttribute("email");
+    Object roleObj = session.getAttribute("role");
+    int role = (roleObj != null) ? (int) roleObj : 0; // Default to 0 (regular user) if not logged in
+%>
             <ul class="nav-links">
-                <% if(username!=null && "admin".equals(role)){ %>
+                <% if(email != null && role == 1){ %>
                     <li><a href="admin_dashboard.jsp"><i class="fas fa-cogs"></i> Quản lý</a></li>
                 <% } %>
-                <li><a href="ecards.jsp"><i class="fas fa-envelope"></i> Thiệp</a></li>
-                <li><a href="flowers.jsp"><i class="fas fa-seedling"></i> Hoa</a></li>
-                <% if(username==null){ %>
+                <li><a href="ProductServlet?action=card"><i class="fas fa-envelope"></i> Thiệp</a></li>
+                <li><a href="ProductServlet?action=flower" class="active"><i class="fas fa-seedling"></i> Hoa</a></li>
+                <% if(email==null){ %>
                     <li><a href="login.jsp"><i class="fas fa-sign-in-alt"></i> Đăng nhập</a></li>
                 <% } else { %>
-                    <li><a href="LogoutServlet"><i class="fas fa-sign-out-alt"></i> Đăng xuất (<%= username %>)</a></li>
+                    <li><a href="LogoutServlet"><i class="fas fa-sign-out-alt"></i> Đăng xuất (<%= email %>)</a></li>
                 <% } %>
                 <li><a href="cart.jsp"><i class="fas fa-shopping-cart"></i> Giỏ hàng</a></li>
             </ul>
         </nav>
     </header>
     <div style="margin-top:100px;"></div>
+
 <%-- lấy id sản phẩm --%>
 <%
     String idParam = request.getParameter("id");
-    int pid = 0;
-    try{pid = Integer.parseInt(idParam);}catch(Exception e){}
-    Product product = null;
-    List<Product> products = (List<Product>) application.getAttribute("products");
-    if(products!=null){
-        for(Product p:products){ if(p.getId()==pid){ product=p; break; } }
-    }
+
+    Product product = (Product) request.getAttribute("product");
+
     if(product==null){out.println("<h2>Không tìm thấy sản phẩm</h2>");return;}
-    double oldPrice = product.getPrice()*1.2; // giả lập giá gốc cao hơn 20%
+    BigDecimal oldPrice = product.getPrice().multiply(new BigDecimal("1.2"));; // giả lập giá gốc cao hơn 20%
 %>
     <div class="container">
         <!-- Left: image -->
@@ -139,7 +136,7 @@
             <div style="height:3px;width:40px;background:#4ecdc4;margin:10px 0;"></div>
             <p class="old-price"><%= String.format("%,.0f₫", oldPrice) %></p>
             <span class="new-price"><%= String.format("%,.0f₫", product.getPrice()) %></span>
-            <form action="CartServlet" method="post" style="margin-top:20px;">
+            <form action="<%=request.getContextPath()%>/CartServlet" method="post" style="margin-top:20px;">
                 <input type="hidden" name="action" value="add">
                 <input type="hidden" name="productId" value="<%= product.getId() %>">
                 <div class="qty-select">
@@ -150,6 +147,8 @@
                 </div>
                 <button type="submit" class="add-btn"><i class="fas fa-cart-plus"></i> Thêm vào giỏ hàng</button>
             </form>
+            <p style="margin-top:20px;"><b>Kho: </b><%= product.getStock() %> </p> 
+            <p style="margin-top:20px;"><b>Mô tả: </b><%= product.getDescription() %> </p> 
             <p style="margin-top:20px;">Quý khách cần đặt hoa vui lòng liên hệ <strong>0969.835.069</strong> (Có Zalo - Viber)</p>
             <h3>Cam kết của Thiệp và Hoa</h3>
             <ul class="commit-list">

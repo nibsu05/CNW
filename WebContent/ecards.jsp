@@ -356,6 +356,11 @@
     </style>
 </head>
 <body>
+            <%
+    String email = (String) session.getAttribute("email");
+    Object roleObj = session.getAttribute("role");
+    int role = (roleObj != null) ? (int) roleObj : 0; // Default to 0 (regular user) if not logged in
+%>
     <!-- Header -->
     <header>
         <nav class="container">
@@ -366,9 +371,13 @@
                 </a>
             </div>
             <ul class="nav-links">
-                <li><a href="ecards.jsp" class="active"><i class="fas fa-envelope"></i> Thiệp</a></li>
-                <li><a href="flowers.jsp"><i class="fas fa-seedling"></i> Hoa</a></li>
-                <li><a href="login.jsp"><i class="fas fa-sign-in-alt"></i> Đăng nhập</a></li>
+                <li><a href="ProductServlet?action=card" class="active"><i class="fas fa-envelope"></i> Thiệp</a></li>
+                <li><a href="ProductServlet?action=flower"><i class="fas fa-seedling"></i> Hoa</a></li>
+                                <% if(email==null){ %>
+                    <li><a href="login.jsp"><i class="fas fa-sign-in-alt"></i> Đăng nhập</a></li>
+                <% } else { %>
+                    <li><a href="LogoutServlet"><i class="fas fa-sign-out-alt"></i> Đăng xuất (<%= email %>)</a></li>
+                <% } %>
                 <li><a href="cart.jsp"><i class="fas fa-shopping-cart"></i> Giỏ hàng</a></li>
             </ul>
         </nav>
@@ -418,11 +427,14 @@
                     <%
                     ProductBo bo = new ProductBo();
                         // Tạo danh sách sản phẩm mẫu
-                        List<Product> products = bo.getProductsByTypeSplit("card");
-                        
+                        List<Product> products = (List<Product>) request.getAttribute("products");
+
+
+
                         // Hiển thị sản phẩm
                         for(Product product : products) {
                     %>
+                    <a href="ProductServlet?action=view&id=<%= product.getId() %>" style="text-decoration: none; color: inherit;">
                     <div class="product-item">
                         <div class="product-image">
                             <% if(product.getImageUrl() != null && !product.getImageUrl().isEmpty()) { %>
@@ -438,7 +450,7 @@
                         <div class="product-info">
                             <div class="product-title"><%= product.getName() %></div>
                             <div class="product-price">
-                                <% if(product.getPrice() == 0) { %>
+                                <% if(product.getPrice().intValue() == 0) { %>
                                     Miễn phí
                                 <% } else { %>
                                     <%= product.getFormattedPrice() %>
@@ -446,6 +458,7 @@
                             </div>
                         </div>
                     </div>
+                    </a>
                     <%
                         }
                     %>

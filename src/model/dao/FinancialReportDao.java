@@ -15,9 +15,7 @@ public class FinancialReportDao {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        // Add useUnicode=true&characterEncoding=UTF-8 to support Vietnamese characters
-        String url = "jdbc:mysql://localhost:3306/cnw?useUnicode=true&characterEncoding=UTF-8";
-        conn = DriverManager.getConnection(url, "root", "");
+        conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/cnw", "root", "");
     }
 
     // 1. Tổng doanh thu theo ngày
@@ -95,7 +93,12 @@ public class FinancialReportDao {
 
     // 5. Tổng tiền đã thanh toán
     public BigDecimal getTotalPaid() {
-        String sql = "SELECT SUM(Amount) AS TongThanhToan FROM payment WHERE Status = 'paid'";
+        String sql = """
+            SELECT SUM(o.TotalPrice) AS TongThanhToan
+            FROM payment p
+            JOIN orders o ON p.OrderId = o.Id
+            WHERE p.Status = 'paid' AND o.Status = 'completed'
+        """;
         try (PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {

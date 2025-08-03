@@ -10,12 +10,9 @@ import model.dao.ProductDao;
 public class ProductBo {
     private ProductDao productDao;
 
-    public ProductBo() {
-        try {
+    public ProductBo() throws SQLException {
 			productDao = new ProductDao();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+
     }
 // lấy tất cả sản phẩm
     public List<Product> getAllProducts() {
@@ -49,6 +46,11 @@ public class ProductBo {
     public boolean deleteProduct(String id) {
         return productDao.deleteProduct(id);
     }
+
+    public List<Product> getProductsByType(String type) {
+        return productDao.getProductsByType(type);
+    }
+
 //Phân loại sản phẩm theo loại
     public List<Product> getProductsByTypeSplit(String type){
         return productDao.getProductsByTypeSplit(type);

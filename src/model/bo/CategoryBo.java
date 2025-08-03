@@ -7,13 +7,9 @@ import model.dao.CategoryDao;
 
 public class CategoryBo {
     private CategoryDao dao;
-    public CategoryBo(){
-    	 try {
+    public CategoryBo() throws SQLException{
 			dao = new CategoryDao();
-		 } catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		 }
+
     }
     public List<Category> getAllCategories() {
         return dao.getAllCategories();

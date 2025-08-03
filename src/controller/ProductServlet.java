@@ -2,30 +2,48 @@ package controller;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.List;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import model.bean.Category;
 import model.bean.Product;
+import model.bo.CategoryBo;
+import model.bo.DuplicateCheckerBo;
 import model.bo.ProductBo;
-
+@WebServlet("/ProductServlet")
 public class ProductServlet extends HttpServlet {
+	
 
     private ProductBo productBo;
+    private CategoryBo categoryBo;
+    private DuplicateCheckerBo dBo;
 
     @Override
     public void init() throws ServletException {
         super.init();
-        productBo = new ProductBo();
+        try {
+            productBo = new ProductBo();
+            categoryBo = new CategoryBo();
+            dBo = new  DuplicateCheckerBo();
+        } catch (SQLException e) {
+            throw new ServletException("Không thể khởi tạo ProductBo", e);
+        }
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+    	request.setCharacterEncoding("UTF-8");
+
+    	response.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action");
+
         if (action == null) action = "list";
 
         switch (action) {
@@ -41,6 +59,12 @@ public class ProductServlet extends HttpServlet {
             case "byPrice":
                 listProductsByPriceRange(request, response);
                 break;
+            case "card":
+                listProductsByCard(request, response);
+                break;
+            case "flower":
+                listProductsByFlower(request, response);
+                break;
             default:
                 listAllProducts(request, response);
         }
@@ -49,10 +73,17 @@ public class ProductServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+    	request.setCharacterEncoding("UTF-8");
+
+    	response.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action");
         if (action == null) action = "";
 
         switch (action) {
+        	case "list":
+        		listAllProducts(request,response);
+        		break;
+        		
             case "add":
                 addProduct(request, response);
                 break;
@@ -71,9 +102,17 @@ public class ProductServlet extends HttpServlet {
     private List<Product> listAllProducts(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         List<Product> products = productBo.getAllProducts();
-        request.setAttribute("products", products);
-        request.getRequestDispatcher("product_list.jsp").forward(request, response);
-        return products;
+
+        request.setAttribute("products", products);	
+        
+    	List<Category> categories = categoryBo.getAllCategories(); 
+    	request.setAttribute("categories", categories);
+        request.getRequestDispatcher("admin_manage.jsp").forward(request, response);
+
+        // request.setAttribute("products", products);
+        // request.getRequestDispatcher("product_list.jsp").forward(request, response);
+        // return products;
+
     }
 
     // Hiển thị sản phẩm theo danh mục
@@ -84,6 +123,22 @@ public class ProductServlet extends HttpServlet {
         List<Product> products = productBo.getProductsByCategory(category,type);
         request.setAttribute("products", products);
         request.getRequestDispatcher("product_list.jsp").forward(request, response);
+    }
+    
+    // Hiển thị sản phẩm theo loại
+    private void listProductsByCard(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String type = "card";
+        List<Product> products = productBo.getProductsByType(type);
+        request.setAttribute("products", products);
+        request.getRequestDispatcher("ecards.jsp").forward(request, response);
+    }
+    private void listProductsByFlower(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String type = "flower";
+        List<Product> products = productBo.getProductsByType(type);
+        request.setAttribute("products", products);
+        request.getRequestDispatcher("flowers.jsp").forward(request, response);
     }
 
     // Hiển thị sản phẩm khả dụng
@@ -116,7 +171,13 @@ public class ProductServlet extends HttpServlet {
     // Thêm sản phẩm
     private void addProduct(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String id = request.getParameter("id");
+    	request.setCharacterEncoding("UTF-8");
+
+    	response.setCharacterEncoding("UTF-8");
+    	
+    	String prefix = "SP"; 
+    	String id = prefix + System.currentTimeMillis();
+
         String name = request.getParameter("name");
         String description = request.getParameter("description");
         BigDecimal price = new BigDecimal(request.getParameter("price"));
@@ -126,19 +187,31 @@ public class ProductServlet extends HttpServlet {
         int stock = Integer.parseInt(request.getParameter("stock"));
         boolean isAvailable = Boolean.parseBoolean(request.getParameter("isAvailable"));
         Product product = new Product(id, name, description,price,category, imageUrl,type,stock);
+        if(dBo.isIdDuplicate("Product", "Id", id)) {
+        	request.setAttribute("Error", "Id bị trùng");
+        	request.setAttribute("openModal", true);
+            request.getRequestDispatcher("admin_manage.jsp").forward(request, response);
+            return;
+        }
         if(product!=null){
-            request.setAttribute("product", product);
-            request.getRequestDispatcher("product_detail.jsp");
+            productBo.insertProduct(product);
+            request.getRequestDispatcher("ProductServlet?action=list").forward(request, response);
+            return;
         }
         else{
             request.setAttribute("Error", "Sai thông tin, nhập lại");
+            request.setAttribute("openModal", true);
+            request.getRequestDispatcher("admin_manage.jsp").forward(request, response);
         }
-        request.getRequestDispatcher("product_detail.jsp").forward(request, response);
     }
 
     // Sửa sản phẩm
     private void updateProduct(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+    	request.setCharacterEncoding("UTF-8");
+
+		response.setCharacterEncoding("UTF-8");
+    	
         String id = request.getParameter("id");
         String name = request.getParameter("name");
         String description = request.getParameter("description");
@@ -149,22 +222,25 @@ public class ProductServlet extends HttpServlet {
         int stock = Integer.parseInt(request.getParameter("stock"));
         boolean isAvailable = Boolean.parseBoolean(request.getParameter("isAvailable"));
         Product product = new Product(id, name, description,price,category, imageUrl,type,stock);
+
         if(product!=null){
-            request.setAttribute("product", product);
-            request.getRequestDispatcher("product_detail.jsp");
+            productBo.updateProduct(product);
+
         }
         else{
             request.setAttribute("Error", "Sai thông tin, nhập lại");
+            request.setAttribute("openModal", true);
         }
-        request.getRequestDispatcher("product_detail.jsp").forward(request, response);
+        request.getRequestDispatcher("ProductServlet?action=list").forward(request, response);
     }
 
     // Xóa sản phẩm
     private void deleteProduct(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String id = request.getParameter("id");
+        System.out.println("ID truyền vào xóa: [" + id + "]");
         boolean success = productBo.deleteProduct(id);
         // Có thể set message nếu muốn
-        response.sendRedirect("productServlet");
+        request.getRequestDispatcher("ProductServlet?action=list").forward(request, response);
     }
 }

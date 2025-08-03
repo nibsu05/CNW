@@ -20,9 +20,7 @@ public class OrderDao {
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-		// Add useUnicode=true&characterEncoding=UTF-8 to support Vietnamese characters
-		String url = "jdbc:mysql://localhost:3306/cnw?useUnicode=true&characterEncoding=UTF-8";
-		conn = DriverManager.getConnection(url, "root", "");
+		conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/cnw","root","");
 	
     }
 
@@ -55,6 +53,13 @@ public class OrderDao {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        if (conn != null) {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
         return false;
     }
 
@@ -83,6 +88,13 @@ public class OrderDao {
 	        ps.setString(5, order.getStatus());
 	        ps.setDate(6, order.getCreateAt());
 	        ps.setString(7, order.getId());
+	        if (conn != null) {
+	            try {
+	                conn.close();
+	            } catch (SQLException e) {
+	                e.printStackTrace();
+	            }
+	        }
 	        return ps.executeUpdate() > 0;
 	    } catch (SQLException e) {
 	        e.printStackTrace();

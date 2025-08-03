@@ -12,9 +12,7 @@ public class OrderItemDao {
     public OrderItemDao() throws SQLException {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            // Add useUnicode=true&characterEncoding=UTF-8 to support Vietnamese characters
-            String url = "jdbc:mysql://localhost:3306/cnw?useUnicode=true&characterEncoding=UTF-8";
-            conn = DriverManager.getConnection(url, "root", "");
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/cnw", "root", "");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -28,6 +26,7 @@ public class OrderItemDao {
             rs.getInt("Quantity"),
             rs.getBigDecimal("Price"),
             rs.getString("Note")
+            
         );
     }
 
@@ -59,7 +58,12 @@ public class OrderItemDao {
 
     public List<OrderItem> getByOrderId(String orderId) {
         List<OrderItem> list = new ArrayList<>();
-        String sql = "SELECT * FROM orderitem WHERE OrderId=?";
+        String sql = """
+                SELECT oi.*, p.Name AS ProductName
+                FROM orderitem oi
+                JOIN product p ON oi.ProductId = p.Id
+                WHERE oi.OrderId = ?
+            """;
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, orderId);
             ResultSet rs = ps.executeQuery();

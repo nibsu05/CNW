@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -12,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import model.bean.OrderItem;
 import model.bo.OrderItemBo;
 
+@WebServlet("/OrderItem")
 public class OrderItemServlet extends HttpServlet {
 
     private OrderItemBo orderItemBo;
@@ -76,10 +78,10 @@ public class OrderItemServlet extends HttpServlet {
     // Hiển thị order item theo orderId
     private void listOrderItemsByOrderId(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String orderId = request.getParameter("orderId");
+        String orderId = request.getParameter("id");
         List<OrderItem> items = orderItemBo.getOrderItemsByOrderId(orderId);
         request.setAttribute("orderItems", items);
-        request.getRequestDispatcher("orderitem_list.jsp").forward(request, response);
+        request.getRequestDispatcher("order_detail.jsp").forward(request, response);
     }
 
     // Xem chi tiết order item

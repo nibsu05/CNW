@@ -1,6 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.*" %>
 <%@ page import="model.bean.Order" %>
+<%@ page  import= "java.math.BigDecimal" %>
+<%@ page  import= "java.util.Map" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,28 +22,17 @@
 <body>
 <%-- Giả lập danh sách đơn hàng --%>
 <%
-    List<Order> orders = (List<Order>) application.getAttribute("orders");
-    if(orders == null){
-        orders = new ArrayList<>();
-        application.setAttribute("orders", orders);
-    }
-    double totalRevenue = 0;
-    Map<String, Double> monthlyRevenue = new LinkedHashMap<>();
-    java.text.SimpleDateFormat sdfMonth = new java.text.SimpleDateFormat("yyyy-MM");
-    for(Order o: orders){
-        totalRevenue += o.getTotalPrice();
-        String month = sdfMonth.format(java.sql.Date.valueOf(o.getCreateAt().substring(0,10)));
-        monthlyRevenue.put(month, monthlyRevenue.getOrDefault(month,0.0)+o.getTotalPrice());
-    }
+	Map<String, BigDecimal> monthlyRevenue = (Map<String, BigDecimal>) request.getAttribute("monthlyRevenue");
+	BigDecimal totalPaid = (BigDecimal) request.getAttribute("totalPaid");
 %>
     <div class="container">
         <h1>Thống kê doanh thu</h1>
-        <h3>Tổng doanh thu: <%= String.format("%,.0f₫", totalRevenue) %></h3>
+        <h3>Tổng doanh thu: <%= String.format("%,.0f₫", totalPaid) %></h3>
         <canvas id="revChart" height="120"></canvas>
         <table>
             <thead><tr><th>Tháng</th><th>Doanh thu</th></tr></thead>
             <tbody>
-            <% for(Map.Entry<String, Double> entry: monthlyRevenue.entrySet()){ %>
+            <% for(Map.Entry<String, BigDecimal> entry: monthlyRevenue.entrySet()){ %>
                 <tr><td><%= entry.getKey() %></td><td><%= String.format("%,.0f₫", entry.getValue()) %></td></tr>
             <% } %>
             </tbody>
@@ -50,9 +41,25 @@
     </div>
 <script>
 const ctx = document.getElementById('revChart');
-const labels = <%= monthlyRevenue.keySet().toString() %>;
-const data = <%= monthlyRevenue.values().toString() %>;
-new Chart(ctx,{type:'bar',data:{labels:labels,datasets:[{label:'Doanh thu',data:data,backgroundColor:'#4ecdc4'}]},options:{plugins:{legend:{display:false}}}});
+const labels = [<% for(String key : monthlyRevenue.keySet()) { %>"<%= key %>", <% } %>];
+const data = [<% for(BigDecimal val : monthlyRevenue.values()) { %><%= val %>, <% } %>];
+
+new Chart(document.getElementById('revChart'), {
+    type: 'bar',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'Doanh thu',
+            data: data,
+            backgroundColor: '#4ecdc4'
+        }]
+    },
+    options: {
+        plugins: {
+            legend: { display: false }
+        }
+    }
+});
 </script>
 </body>
 </html>
