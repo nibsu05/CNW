@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="model.bean.*" %>
 <%@ page import="java.util.*" %>
+<%@ page import="java.math.BigDecimal" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -184,13 +185,13 @@
         }
 
         .cart-item {
-            display: grid;
-            grid-template-columns: 100px 2fr 1fr 1fr 50px;
-            gap: 1rem;
-            align-items: center;
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
             padding: 1.5rem;
             border-bottom: 1px solid #eee;
             transition: all 0.3s ease;
+            position: relative;
         }
 
         .cart-item:hover {
@@ -198,14 +199,15 @@
         }
 
         .item-image {
-            width: 80px;
-            height: 80px;
-            background: #fff; /* bỏ màu để nhìn rõ ảnh */
+            flex: 0 0 100px;
+            height: 100px;
+            background: #f8f9fa;
             border-radius: 10px;
-            overflow: hidden; /* cắt phần dư */
+            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
         .item-image img {
@@ -214,21 +216,35 @@
             object-fit: cover; /* ảnh che full ô */
         }
 
+        .item-details {
+            flex: 1;
+            min-width: 0;
+        }
+        
         .item-details h3 {
             font-size: 1.1rem;
             margin-bottom: 0.5rem;
             color: #333;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .item-details p {
             color: #666;
             font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .item-price {
             font-weight: bold;
             color: #ff6b6b;
             font-size: 1.1rem;
+            margin: 0.5rem 0;
         }
 
         .quantity-controls {
@@ -265,10 +281,21 @@
         }
 
         .remove-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
             color: #ff6b6b;
             cursor: pointer;
             font-size: 1.2rem;
             transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
         .remove-btn:hover {
@@ -330,14 +357,19 @@
         /* Responsive */
         @media (max-width: 768px) {
             .cart-item {
-                grid-template-columns: 80px 1fr;
+                flex-direction: column;
+                align-items: flex-start;
                 gap: 1rem;
             }
-
-            .item-price, .quantity-controls, .remove-btn {
-                grid-column: 2;
-                justify-self: start;
-                margin-top: 0.5rem;
+            
+            .item-image {
+                width: 100%;
+                height: 200px;
+            }
+            
+            .remove-btn {
+                top: 1.5rem;
+                right: 1.5rem;
             }
 
             .cart-actions {
@@ -400,6 +432,7 @@
                 <% } else { %>
                     <li><a href="LogoutServlet"><i class="fas fa-sign-out-alt"></i> Đăng xuất (<%= email %>)</a></li>
                 <% } %>>
+
             <li><a href="cart.jsp" class="active"><i class="fas fa-shopping-cart"></i> Giỏ hàng</a></li>
         </ul>
     </nav>
@@ -416,8 +449,6 @@
             <%
                 // Lấy giỏ hàng từ session
                 Cart cart = (Cart) session.getAttribute("cart");
-
-
 
                 if (cart == null || cart.isEmpty()) {
             %>
@@ -443,17 +474,16 @@
                     <div class="item-image">
                         <% if (p.getImageUrl() != null && !p.getImageUrl().isEmpty()) { %>
                             <img src="<%= p.getImageUrl() %>" alt="<%= p.getName() %>" >
+                        <% } else if ("flower".equals(p.getType())) { %>
+                            <i class="fas fa-spa"></i>
                         <% } else { %>
-                            <% if ("flower".equals(p.getType())) { %>
-                                <i class="fas fa-seedling"></i>
-                            <% } else { %>
-                                <i class="fas fa-envelope"></i>
-                            <% } %>
+                            <i class="fas fa-envelope"></i>
                         <% } %>
                     </div>
                     <div class="item-details">
                         <h3><%= p.getName() %></h3>
                         <p><%= p.getDescription() %></p>
+<<<<<<< HEAD
                     </div>
                     <div class="item-price">
                         <% if (p.getPrice().intValue() == 0) { %>
@@ -471,6 +501,7 @@
 					       onchange="updateQuantity('<%= p.getId() %>', this.value, true)">
 
                         <button class="quantity-btn" type="button" onclick="updateQuantity('<%= p.getId() %>', parseInt(document.querySelector('input[data-id=<%= p.getId() %>]').value) + 1)">+</button>
+
                     </div>
                     <div class="remove-btn" onclick="removeItem('<%= p.getId() %>')">
                         <i class="fas fa-trash"></i>
@@ -499,18 +530,35 @@
                 <button class="btn btn-danger" onclick="clearCart()">
                     <i class="fas fa-trash"></i> Xóa giỏ hàng
                 </button>
-                <button class="btn btn-primary" onclick="checkout()">
+                <% 
+                    // Kiểm tra đăng nhập (sử dụng biến email đã khai báo ở trên)
+                    if (email != null && !email.isEmpty()) { 
+                        // Đã đăng nhập
+                %>
+                <a href="checkout.jsp" class="btn btn-primary">
                     <i class="fas fa-check"></i> Xác nhận đặt hàng
+                </a>
+                <% } else { 
+                        // Chưa đăng nhập
+                        String currentPage = request.getRequestURI();
+                        String queryString = request.getQueryString();
+                        String redirectUrl = currentPage + (queryString != null ? "?" + queryString : "");
+                %>
+                <button class="btn btn-primary" onclick="window.location.href='login.jsp?redirect=' + encodeURIComponent('<%= redirectUrl %>')">
+                    <i class="fas fa-sign-in-alt"></i> Đăng nhập để thanh toán
                 </button>
+                <% } %>
             </div>
             <% } %>
         </div>
     </div>
 </div>
 
+
 <script>
     function clearCart() {
         if (confirm('Bạn có chắc muốn xóa toàn bộ giỏ hàng?')) {
+
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = 'CartServlet';
@@ -541,7 +589,7 @@
         }
 
         let quantity = isDirectInput ? parseInt(value) : value;
-        if (isNaN(quantity) quantity = 1;
+        if (isNaN(quantity)) quantity = 1;
         if (quantity < 1) quantity = 1;
 
         // Chuyển hướng để cập nhật

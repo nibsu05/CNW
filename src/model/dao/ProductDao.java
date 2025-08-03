@@ -22,19 +22,6 @@ public class ProductDao {
 		conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/cnw","root","");
 	
 	}
-	private Product mapResultSetToProduct(ResultSet rs) throws SQLException {
-	    Product p = new Product();
-	    p.setId(rs.getString("Id"));
-	    p.setName(rs.getString("Name"));
-	    p.setDescription(rs.getString("Description"));
-	    p.setPrice(rs.getBigDecimal("Price")); 
-	    p.setCategory(rs.getString("Category"));
-	    p.setImageUrl(rs.getString("ImageUrl"));
-	    p.setType(rs.getString("Type"));
-	    p.setStock(rs.getInt("Stock"));
-	    p.setAvailable(rs.getBoolean("IsAvailable"));
-	    return p;
-	}
 	//Lấy toàn bộ sản phẩm
 	public List<Product> getAllProducts() {
         List<Product> products = new ArrayList<>();
@@ -138,9 +125,10 @@ public class ProductDao {
         return null;
     }
 //    Lấy sản phẩm theo danh mục
-    public List<Product> getProductsByCategory(String category) {
+    public List<Product> getProductsByCategory(String category, String type) {
         List<Product> products = new ArrayList<>();
-        String sql = "SELECT * FROM Product WHERE Category = ?";
+        if(type == "flower"){
+            String sql = "SELECT * FROM Product WHERE Category = ? AND Type = 'flower'";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, category);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -160,6 +148,30 @@ public class ProductDao {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+        }
+        if(type == "card"){
+            String sql = "SELECT * FROM Product WHERE Category = ? AND Type = 'card'";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, category);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Product p = new Product();
+                    p.setId(rs.getString("Id"));
+                    p.setName(rs.getString("Name"));
+                    p.setDescription(rs.getString("Description"));
+                    p.setPrice(rs.getBigDecimal("Price"));
+                    p.setCategory(rs.getString("Category"));
+                    p.setImageUrl(rs.getString("ImageUrl"));
+                    p.setType(rs.getString("Type"));
+                    p.setStock(rs.getInt("Stock"));
+                    p.setAvailable(rs.getBoolean("IsAvailable"));
+                    products.add(p);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         }
         return products;
     }
@@ -211,8 +223,74 @@ public class ProductDao {
         return products;
     }
 
+    /**
+     * Cập nhật số lượng tồn kho của sản phẩm
+     * @param productId ID của sản phẩm cần cập nhật
+     * @param quantityChange Số lượng thay đổi (dương để tăng, âm để giảm)
+     * @return true nếu cập nhật thành công, false nếu có lỗi hoặc không đủ hàng
+     */
+    public boolean updateStock(String productId, int quantityChange) {
+        String sql = "UPDATE Product SET Stock = Stock + ? WHERE Id = ? AND (Stock + ?) >= 0";
+        
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, quantityChange);
+            stmt.setString(2, productId);
+            stmt.setInt(3, quantityChange);
+            
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    public List<Product> getProductsByTypeSplit(String type) {
+        List<Product> productFlower = new ArrayList<>();
+        List<Product> productCard = new ArrayList<>();
+        String sql = "SELECT * FROM Product";
+        try (PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                Product p = mapResultSetToProduct(rs);
+                if ("flower".equalsIgnoreCase(p.getType())) {
+                    productFlower.add(p);
+                } else if ("card".equalsIgnoreCase(p.getType())) {
+                    productCard.add(p);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        if ("flower".equalsIgnoreCase(type)) {
+            return productFlower;
+        } else if ("card".equalsIgnoreCase(type)) {
+            return productCard;
+        } else {
+            // Nếu type khác, trả về tất cả sản phẩm
+            List<Product> all = new ArrayList<>();
+            all.addAll(productFlower);
+            all.addAll(productCard);
+            return all;
+        }
+    }
 
-
-	
-
+        private Product mapResultSetToProduct(ResultSet rs) {
+            try {
+            Product p = new Product();
+            p.setId(rs.getString("Id"));
+            p.setName(rs.getString("Name"));
+            p.setDescription(rs.getString("Description"));
+            p.setPrice(rs.getBigDecimal("Price"));
+            p.setCategory(rs.getString("Category"));
+            p.setImageUrl(rs.getString("ImageUrl"));
+            p.setType(rs.getString("Type"));
+            p.setStock(rs.getInt("Stock"));
+            p.setAvailable(rs.getBoolean("IsAvailable"));
+            return p;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

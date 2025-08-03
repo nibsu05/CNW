@@ -1,11 +1,15 @@
 package model.dao;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import model.bean.CartItem;
 import model.bean.Order;
-import java.math.BigDecimal;
 
 public class OrderDao {
     private Connection conn;
@@ -140,4 +144,67 @@ public class OrderDao {
 	    return list;
 	}
 
+    /**
+     * Thêm các sản phẩm vào bảng order_items
+     * @param orderId ID của đơn hàng
+     * @param items Danh sách các mục trong giỏ hàng
+     * @return true nếu thêm thành công, false nếu có lỗi
+     */
+    public boolean addOrderItems(String orderId, List<CartItem> items) throws SQLException {
+        if (items == null || items.isEmpty()) {
+            return false;
+        }
+        
+        String sql = "INSERT INTO orderitem (Id, OrderId, ProductId, Quantity, Price, Note) VALUES (?, ?, ?, ?, ?, '')";
+        
+        try {
+            // Tắt auto-commit để thực hiện transaction
+            conn.setAutoCommit(false);
+            
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                int itemNumber = 1;
+                for (CartItem item : items) {
+                    // Generate a unique ID for each order item: OI + last 10 digits of timestamp + item number
+                    // Total length: 2 (OI) + 10 (timestamp) + 1 (_) + 1 (item number) = 14 characters
+                    String timestamp = String.valueOf(System.currentTimeMillis());
+                    String itemId = "OI" + timestamp.substring(timestamp.length() - 10) + "_" + itemNumber++;
+                    String productId = item.getProduct().getId();
+                    
+                    // Debug log
+                    System.out.println("Attempting to add order item with product ID: " + productId);
+                    
+                    stmt.setString(1, itemId);
+                    stmt.setString(2, orderId);
+                    stmt.setString(3, productId);
+                    stmt.setInt(4, item.getQuantity());
+                    stmt.setBigDecimal(5, item.getProduct().getPrice());
+                    stmt.addBatch();
+                }
+                
+                int[] results = stmt.executeBatch();
+                
+                // Kiểm tra tất cả các dòng đều được thêm thành công
+                for (int result : results) {
+                    if (result <= 0) {
+                        conn.rollback();
+                        return false;
+                    }
+                }
+                
+                conn.commit();
+                return true;
+                
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            }
+            
+        } finally {
+            try {
+                conn.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

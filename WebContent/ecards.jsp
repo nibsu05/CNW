@@ -420,12 +420,15 @@
                 </ul>
             </div>
 
+            <%@page import="model.bo.ProductBo"%>
             <!-- Products Grid -->
             <div class="products-container">
                 <div class="products-grid">
                     <%
+                    ProductBo bo = new ProductBo();
                         // Tạo danh sách sản phẩm mẫu
                         List<Product> products = (List<Product>) request.getAttribute("products");
+
 
 
                         // Hiển thị sản phẩm

@@ -411,17 +411,14 @@
                 </ul>
             </div>
 
+            <%@page import="model.bo.ProductBo"%>
             <!-- Products Grid -->
             <div class="products-container">
                 <div class="products-grid">
                     <%
+                    ProductBo bo = new ProductBo();
                         // Tạo danh sách sản phẩm mẫu
-                        List<Product> products = new ArrayList<>();
-                        
-                        // Thêm các sản phẩm thiệp
-                        products.add(new Product(1, "Smile", "Design by Alice Potter", 0, "Sinh nhật", "https://www.openme.com/sites/default/files/styles/card_listing_preview/public/card_listing_thumbs/Catalog-smile.jpg?itok=NAjpze1d", "card"));
-                        products.add(new Product(2, "Monster Mash", "Desgign by Caravan Shirts", 0, "Vui nhộn", "https://www.openme.com/sites/default/files/styles/card_listing_preview/public/card_listing_thumbs/Catalog-monstermash.jpg?itok=PRsg2Qyz", "card"));
-                        products.add(new Product(3, "Gill The Cat", "Desgign by Kim Vervuurt (Threadless)", 0, "Sinh nhật", "https://www.openme.com/sites/default/files/styles/card_listing_preview/public/card_listing_thumbs/Catalog-gilblue.jpg?itok=Z5RJ0xiX", "card"));
+                        List<Product> products = bo.getProductsByTypeSplit("card");
                         
                         // Hiển thị sản phẩm
                         for(Product product : products) {
