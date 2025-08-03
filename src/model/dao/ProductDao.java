@@ -213,8 +213,26 @@ public class ProductDao {
         return products;
     }
 
-
-
-	
-
+    /**
+     * Cập nhật số lượng tồn kho của sản phẩm
+     * @param productId ID của sản phẩm cần cập nhật
+     * @param quantityChange Số lượng thay đổi (dương để tăng, âm để giảm)
+     * @return true nếu cập nhật thành công, false nếu có lỗi hoặc không đủ hàng
+     */
+    public boolean updateStock(String productId, int quantityChange) {
+        String sql = "UPDATE Product SET Stock = Stock + ? WHERE Id = ? AND (Stock + ?) >= 0";
+        
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, quantityChange);
+            stmt.setString(2, productId);
+            stmt.setInt(3, quantityChange);
+            
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

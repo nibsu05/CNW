@@ -5,21 +5,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 import model.bean.Order;
+import model.bean.CartItem;
 import java.math.BigDecimal;
+import java.util.List;
 
 public class OrderDao {
-    private Connection conn;
+    private final Connection conn;
 
     public OrderDao() throws SQLException  {
-		try {
-			Class.forName("com.mysql.cj.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-		// Add useUnicode=true&characterEncoding=UTF-8 to support Vietnamese characters
-		String url = "jdbc:mysql://localhost:3306/cnw?useUnicode=true&characterEncoding=UTF-8";
-		conn = DriverManager.getConnection(url, "root", "");
-	
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        // Add useUnicode=true&characterEncoding=UTF-8 to support Vietnamese characters
+        String url = "jdbc:mysql://localhost:3306/cnw?useUnicode=true&characterEncoding=UTF-8";
+        conn = DriverManager.getConnection(url, "root", "");
+    }
+    
+    /**
+     * Get the database connection for transaction management
+     * @return the database connection
+     */
+    public Connection getConnection() {
+        return conn;
     }
 
     public List<Order> getAllOrders() {
@@ -128,4 +137,56 @@ public class OrderDao {
 	    return list;
 	}
 
+    /**
+     * Thêm các sản phẩm vào bảng order_items
+     * @param orderId ID của đơn hàng
+     * @param items Danh sách các mục trong giỏ hàng
+     * @return true nếu thêm thành công, false nếu có lỗi
+     */
+    public boolean addOrderItems(String orderId, List<CartItem> items) throws SQLException {
+        if (items == null || items.isEmpty()) {
+            return false;
+        }
+        
+        String sql = "INSERT INTO order_items (OrderId, ProductId, Quantity, Price) VALUES (?, ?, ?, ?)";
+        
+        try {
+            // Tắt auto-commit để thực hiện transaction
+            conn.setAutoCommit(false);
+            
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                for (CartItem item : items) {
+                    stmt.setString(1, orderId);
+                    stmt.setString(2, item.getProduct().getId());
+                    stmt.setInt(3, item.getQuantity());
+                    stmt.setBigDecimal(4, item.getProduct().getPrice());
+                    stmt.addBatch();
+                }
+                
+                int[] results = stmt.executeBatch();
+                
+                // Kiểm tra tất cả các dòng đều được thêm thành công
+                for (int result : results) {
+                    if (result <= 0) {
+                        conn.rollback();
+                        return false;
+                    }
+                }
+                
+                conn.commit();
+                return true;
+                
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            }
+            
+        } finally {
+            try {
+                conn.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
