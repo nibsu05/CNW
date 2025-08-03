@@ -141,18 +141,29 @@ public class OrderDao {
             return false;
         }
         
-        String sql = "INSERT INTO order_items (OrderId, ProductId, Quantity, Price) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO orderitem (Id, OrderId, ProductId, Quantity, Price, Note) VALUES (?, ?, ?, ?, ?, '')";
         
         try {
             // Tắt auto-commit để thực hiện transaction
             conn.setAutoCommit(false);
             
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                int itemNumber = 1;
                 for (CartItem item : items) {
-                    stmt.setString(1, orderId);
-                    stmt.setString(2, item.getProduct().getId());
-                    stmt.setInt(3, item.getQuantity());
-                    stmt.setBigDecimal(4, item.getProduct().getPrice());
+                    // Generate a unique ID for each order item: OI + last 10 digits of timestamp + item number
+                    // Total length: 2 (OI) + 10 (timestamp) + 1 (_) + 1 (item number) = 14 characters
+                    String timestamp = String.valueOf(System.currentTimeMillis());
+                    String itemId = "OI" + timestamp.substring(timestamp.length() - 10) + "_" + itemNumber++;
+                    String productId = item.getProduct().getId();
+                    
+                    // Debug log
+                    System.out.println("Attempting to add order item with product ID: " + productId);
+                    
+                    stmt.setString(1, itemId);
+                    stmt.setString(2, orderId);
+                    stmt.setString(3, productId);
+                    stmt.setInt(4, item.getQuantity());
+                    stmt.setBigDecimal(5, item.getProduct().getPrice());
                     stmt.addBatch();
                 }
                 

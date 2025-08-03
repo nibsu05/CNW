@@ -103,20 +103,19 @@ public class OrderBo {
      * @param status Trạng thái thanh toán
      * @return true nếu tạo thanh toán thành công, false nếu có lỗi
      */
-    public boolean processPayment(String paymentId, String orderId, BigDecimal amount, 
+    public boolean processPayment(String paymentId, String orderId, 
                                 String method, String status) {
         try {
             Payment payment = new Payment(
                 paymentId,
                 orderId,
-                amount,
                 method,
                 status,
                 new java.sql.Date(System.currentTimeMillis())
             );
             
             PaymentDao paymentDao = new PaymentDao();
-            return paymentDao.insertPayment(payment);
+            return paymentDao.insert(payment);
         } catch (Exception e) {
             e.printStackTrace();
             return false;

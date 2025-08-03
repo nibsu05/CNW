@@ -102,6 +102,9 @@
             <a href="homepage.jsp" class="btn">
                 <i class="fas fa-home"></i> Về Trang Chủ
             </a>
+            <a href="order_tracking.jsp" class="btn" style="margin-left: 10px;">
+                <i class="fas fa-truck"></i> Theo Dõi Đơn Hàng
+            </a>
         </div>
     </div>
 </body>

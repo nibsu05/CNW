@@ -288,6 +288,7 @@ public class userServlet extends HttpServlet {
             HttpSession session = request.getSession();
             session.setAttribute("email", user.getEmail());
             session.setAttribute("role", user.getRole());
+            session.setAttribute("userId", user.getId()); // Store userId in session
 
             if (user.getRole() == 1) { // Admin
                 response.sendRedirect("homepage.jsp");
